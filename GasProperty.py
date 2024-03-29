@@ -8,3 +8,4 @@ class GasProperty:
     CoolingTime = 5
     Luminosity = 6
     JetPower = 7
+    TurbulenceHeating = 8

@@ -150,6 +150,8 @@ class TurbulenceAnalyzor:
 
 
     def plotPowerSpectrum(self, ax : plt.Axes):
+        if (self.Ek is None):
+            raise RuntimeError("You should excute calculatePowerSpectrum() at first")
         time = np.round(self.ds.current_time.in_units('Gyr'), 2)
         title    = 't=%.1fGyr, l=%dkpc' %(time, self.rboxKpc)
         ax.set(
@@ -162,18 +164,14 @@ class TurbulenceAnalyzor:
     
         
     def getDissipationRate(self):
+        if (self.Ek is None):
+            raise RuntimeError("You should excute calculatePowerSpectrum() at first")
         dissipationRate = self.__getDissipationRate(self.alpha)
         heatingRate = self.__getHeatingRate(dissipationRate, self.rboxKpc)
-        df = {
-            'l_kpc':[],
-            'dissipation_rate':[],
-            'turb_heating_rate':[]
+        dic = {
+            'l_kpc' : self.rboxKpc,
+            'dissipation_rate' : dissipationRate,
+            'turb_heating_rate' : heatingRate
         }
-        df = pd.DataFrame(df)
-        df = df.append({
-            'l_kpc':self.rboxKpc,
-            'dissipation_rate':dissipationRate,
-            'turb_heating_rate':heatingRate
-        }, ignore_index=True)
-        return df
+        return dic
     

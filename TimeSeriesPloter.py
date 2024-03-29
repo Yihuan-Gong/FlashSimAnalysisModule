@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 from typing import Tuple
 from python.modules.TimeSeries.GasPropertyTimeSeries import *
 from python.modules.TimeSeries.JetPowerTimeSeries import *
+from python.modules.TimeSeries.TurbulenceHeatingTimeSeries import *
 from python.modules.GasProperty import GasProperty
 
 class TimeSeriesPloter:
@@ -23,6 +24,10 @@ class TimeSeriesPloter:
             )
         elif (property == GasProperty.JetPower):
             self.timeSeriesStrategy = JetPowerTimeSeries(
+                self.basePath, startTimeMyr, endTimeMyr, stepMyr, myrPerFile
+            )
+        elif (property == GasProperty.TurbulenceHeating):
+            self.timeSeriesStrategy = TurbulenceHeatingTimeSeries(
                 self.basePath, startTimeMyr, endTimeMyr, stepMyr, myrPerFile
             )
     
