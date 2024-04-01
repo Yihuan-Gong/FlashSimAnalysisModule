@@ -1,6 +1,7 @@
 from typing import Tuple
 from python.modules.Profile.CoolingTimeProfile import *
 from python.modules.Profile.NoneCoolingGasPropertyProfile import *
+from python.modules.Profile.TurbulenceHeatingProfile import *
 from python.modules.GasProperty import GasProperty
 
 ''' 
@@ -26,6 +27,8 @@ class ProfilePloter:
             self.profileStrategy = NoneCoolingGasPropertyProfile(self.basePath, gasProperty)
         elif (gasProperty == GasProperty.CoolingTime):
             self.profileStrategy = CoolingTimeProfile(self.basePath)
+        elif (gasProperty == GasProperty.TurbulenceHeating):
+            self.profileStrategy = TurbulenceHeatingProfile(self.basePath)
     
 
     def plot(self, timeMyr: float, ylim: Tuple[float, float]=None):

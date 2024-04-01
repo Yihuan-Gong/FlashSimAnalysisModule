@@ -1,18 +1,17 @@
 import abc
 from typing import Tuple
-# from python.modules.FieldAdder import FieldAdder
+from abc import ABC, abstractmethod
 
-class Profile(metaclass=abc.ABCMeta):
+class Profile(ABC):
     def __init__(self, basePath: str, myrPerFile=True):
         self.basePath = basePath
         self.myrPerFile = myrPerFile
-        # FieldAdder.AddFields()
 
-    @abc.abstractmethod
+    @abstractmethod
     def plot(self, timeMyr: float, ylim: Tuple[float, float]=None):
         pass
     
-    @abc.abstractmethod
+    @abstractmethod
     def plotRange(self, startTimeMyr: float, endTimeMyr: float, stepMyr: float,  
                   ylim: Tuple[float, float]=None):
         pass

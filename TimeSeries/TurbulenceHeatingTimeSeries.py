@@ -5,7 +5,6 @@ import pandas as pd
 import os
 from typing import Tuple
 from python.modules.TimeSeries.TimeSeries import TimeSeries
-from python.modules.FieldAdder import FieldAdder
 from python.modules.TurbulenceAnalyzor import TurbulenceAnalyzor
 
 class TurbulenceHeatingTimeSeries(TimeSeries):
