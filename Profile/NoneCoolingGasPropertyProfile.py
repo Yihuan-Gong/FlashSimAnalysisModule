@@ -5,7 +5,7 @@ import concurrent.futures
 # from multiprocessing import Pool
 from typing import Tuple
 from python.modules.Profile.Profile import Profile
-from python.modules.GasProperty import GasProperty
+from python.modules.Enum.GasField import GasField
 from python.modules.FieldAdder import FieldAdder
 
 '''
@@ -17,7 +17,7 @@ from python.modules.FieldAdder import FieldAdder
 '''
 
 class NoneCoolingGasPropertyProfile(Profile):
-    def __init__(self, basePath: str, gasProperty: GasProperty, myrPerFile:bool =True):
+    def __init__(self, basePath: str, gasProperty: GasField, myrPerFile:bool =True):
         super().__init__(basePath, myrPerFile)
         FieldAdder.AddFields()
         self.gasProperty = gasProperty
@@ -43,13 +43,13 @@ class NoneCoolingGasPropertyProfile(Profile):
 
 
     def __getFieldName(self):
-        if (self.gasProperty == GasProperty.Density):
+        if (self.gasProperty == GasField.Density):
             return ('gas', 'density')
-        elif (self.gasProperty == GasProperty.Temperature):
+        elif (self.gasProperty == GasField.Temperature):
             return ('gas', 'temp_in_keV')
-        elif (self.gasProperty == GasProperty.Pressure):
+        elif (self.gasProperty == GasField.Pressure):
             return ('gas', 'pressure')
-        elif (self.gasProperty == GasProperty.Entropy):
+        elif (self.gasProperty == GasField.Entropy):
             return ('gas', 'entropy')
 
 
@@ -69,19 +69,19 @@ class NoneCoolingGasPropertyProfile(Profile):
         fig, ax = plt.subplots()
         ax.set(xlabel='r $(kpc)$', xscale="log", yscale="log")
 
-        if (self.gasProperty == GasProperty.Temperature):
+        if (self.gasProperty == GasField.Temperature):
             ax.set(
                 ylabel='kT $(keV)$',
             )
-        elif (self.gasProperty == GasProperty.Density):
+        elif (self.gasProperty == GasField.Density):
             ax.set(
                 ylabel='Density $(g/cm^3)$',
             )
-        elif (self.gasProperty == GasProperty.Pressure):
+        elif (self.gasProperty == GasField.Pressure):
             ax.set(
                 ylabel='Pressure $(Ba)$',
             )
-        elif (self.gasProperty == GasProperty.Entropy):
+        elif (self.gasProperty == GasField.Entropy):
             ax.set(
                 ylabel='S $(keV cm^2)$',
                 ylim=(10, 1000),

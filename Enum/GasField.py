@@ -1,6 +1,6 @@
 from enum import Enum
 
-class GasProperty:
+class GasField(Enum):
     Temperature = 1
     Density = 2
     Pressure = 3

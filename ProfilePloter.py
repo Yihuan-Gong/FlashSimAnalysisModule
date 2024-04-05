@@ -2,7 +2,7 @@ from typing import Tuple
 from python.modules.Profile.CoolingTimeProfile import *
 from python.modules.Profile.NoneCoolingGasPropertyProfile import *
 from python.modules.Profile.TurbulenceHeatingProfile import *
-from python.modules.GasProperty import GasProperty
+from python.modules.Enum.GasField import GasField
 
 ''' 
     This class can only be used to plot
@@ -19,15 +19,15 @@ class ProfilePloter:
         self.basePath = basePath
     
 
-    def selectProperty(self, gasProperty: GasProperty):
-        if (gasProperty == GasProperty.Temperature or
-            gasProperty == GasProperty.Pressure or
-            gasProperty == GasProperty.Density or
-            gasProperty == GasProperty.Entropy):
+    def selectProperty(self, gasProperty: GasField):
+        if (gasProperty == GasField.Temperature or
+            gasProperty == GasField.Pressure or
+            gasProperty == GasField.Density or
+            gasProperty == GasField.Entropy):
             self.profileStrategy = NoneCoolingGasPropertyProfile(self.basePath, gasProperty)
-        elif (gasProperty == GasProperty.CoolingTime):
+        elif (gasProperty == GasField.CoolingTime):
             self.profileStrategy = CoolingTimeProfile(self.basePath)
-        elif (gasProperty == GasProperty.TurbulenceHeating):
+        elif (gasProperty == GasField.TurbulenceHeating):
             self.profileStrategy = TurbulenceHeatingProfile(self.basePath)
     
 
