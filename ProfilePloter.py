@@ -1,8 +1,9 @@
 from typing import Tuple
-from python.modules.Profile.CoolingTimeProfile import *
-from python.modules.Profile.NoneCoolingGasPropertyProfile import *
-from python.modules.Profile.TurbulenceHeatingProfile import *
-from python.modules.Enum.GasField import GasField
+from .Profile.CoolingTimeProfile import *
+from .Profile.NoneCoolingGasPropertyProfile import *
+from .Profile.TurbulenceHeatingProfile import *
+from .Enum.GasField import GasField
+from .PandasHelper.PandasHelper import PandasHelper
 
 ''' 
     This class can only be used to plot
@@ -31,10 +32,14 @@ class ProfilePloter:
             self.profileStrategy = TurbulenceHeatingProfile(self.basePath)
     
 
-    def plot(self, timeMyr: float, ylim: Tuple[float, float]=None):
-        self.profileStrategy.plot(timeMyr, ylim=ylim)
+    def plot(self, ax: plt.Axes, timeMyr: float, ylim: Tuple[float, float]=None):
+        self.profileStrategy.plot(ax, timeMyr, ylim=ylim)
 
     
-    def plotRange(self, startTimeMyr: float, endTimeMyr: float, stepMyr: float,  
+    def plotRange(self, ax: plt.Axes, startTimeMyr: float, endTimeMyr: float, stepMyr: float,  
                   ylim: Tuple[float, float]=None):
-        self.profileStrategy.plotRange(startTimeMyr, endTimeMyr, stepMyr, ylim=ylim)
+        self.profileStrategy.plotRange(ax, startTimeMyr, endTimeMyr, stepMyr, ylim=ylim)
+
+    
+    def resetDataBase(self, gasProperty: GasField):
+        PandasHelper().resetDataBase(self.basePath, gasProperty)

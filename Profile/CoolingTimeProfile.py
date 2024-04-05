@@ -15,17 +15,17 @@ class CoolingTimeProfile(Profile):
 
 
     # overriding abstract method
-    def plot(self, timeMyr: float, ylim: Tuple[float, float]=None):
+    def plot(self, ax: plt.Axes, timeMyr: float, ylim: Tuple[float, float]=None):
         profile = self.__getProfile(timeMyr)
         label =  "%.1f Gyr"%(timeMyr/1000) if (self.myrPerFile) else "%.1f Gyr"%(timeMyr/100)
-        ax = self.__initPlot(ylim)
+        self.__initPlot(ax, ylim)
         ax.plot(np.array(profile.x)/self.kpc, np.array(profile[self.gasField]), label=label)
 
 
     # overriding abstract method
-    def plotRange(self, startTimeMyr: float, endTimeMyr: float, stepMyr: float,  
+    def plotRange(self, ax: plt.Axes,  startTimeMyr: float, endTimeMyr: float, stepMyr: float,  
                   ylim: Tuple[float, float]=None):
-        ax = ax = self.__initPlot(ylim)
+        self.__initPlot(ax, ylim)
         for timeMyr in range(startTimeMyr, endTimeMyr, stepMyr):
             profile = self.__getProfile(timeMyr)
             label =  "%.1f Gyr"%(timeMyr/1000) if (self.myrPerFile) else "%.1f Gyr"%(timeMyr/100)
@@ -39,8 +39,7 @@ class CoolingTimeProfile(Profile):
         return internalEnergyPerVolume/xrayEmissivity
     
 
-    def __initPlot(self, ylim: Tuple[float, float]=None):
-        fig, ax = plt.subplots()
+    def __initPlot(self, ax: plt.Axes, ylim: Tuple[float, float]=None):
         ax.set(
             xlabel='r $(kpc)$',
             ylabel="Cooling Time (Gyr)",
@@ -49,7 +48,6 @@ class CoolingTimeProfile(Profile):
             xlim=(20, 2000),
             ylim=(0.3, 200),
         )
-        return ax
     
 
     def __getProfile(self, timeMyr: float):

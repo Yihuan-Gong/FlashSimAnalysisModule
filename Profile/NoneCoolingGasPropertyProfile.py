@@ -4,9 +4,9 @@ import numpy as np
 import concurrent.futures
 # from multiprocessing import Pool
 from typing import Tuple
-from python.modules.Profile.Profile import Profile
-from python.modules.Enum.GasField import GasField
-from python.modules.FieldAdder import FieldAdder
+from .Profile import Profile
+from ..Enum.GasField import GasField
+from ..FieldAdder import FieldAdder
 
 '''
     This class can only be used to plot
@@ -21,24 +21,22 @@ class NoneCoolingGasPropertyProfile(Profile):
         super().__init__(basePath, myrPerFile)
         FieldAdder.AddFields()
         self.gasProperty = gasProperty
-        self.gasField = self.__getFieldName()
+        self.gasFieldName = self.__getFieldName()
 
 
-    # overriding abstract method
-    def plot(self, timeMyr: float, ylim: Tuple[float, float]=None):
+    def plot(self, ax: plt.Axes, timeMyr: float, ylim: Tuple[float, float]=None):
         profile = self.__getProfile(timeMyr)
-        ax = self.__initPlot(ylim)
-        ax.plot(np.array(profile.x), np.array(profile[self.gasField]), "-b", label="%.1f Gyr"%(timeMyr/1000))
+        self.__initPlot(ax, ylim)
+        ax.plot(np.array(profile.x), np.array(profile[self.gasFieldName]), "-b", label="%.1f Gyr"%(timeMyr/1000))
         ax.legend()
 
 
-    # overriding abstract method
-    def plotRange(self, startTimeMyr: float, endTimeMyr: float, stepMyr: float,  
+    def plotRange(self, ax: plt.Axes, startTimeMyr: float, endTimeMyr: float, stepMyr: float,  
                   ylim: Tuple[float, float]=None):
-        ax = self.__initPlot(ylim)
+        self.__initPlot(ax, ylim)
         for timeMyr in range(startTimeMyr, endTimeMyr, stepMyr):
             profile = self.__getProfile(timeMyr)
-            ax.plot(np.array(profile.x), np.array(profile[self.gasField]), label="%.1f Gyr"%(timeMyr/1000))
+            ax.plot(np.array(profile.x), np.array(profile[self.gasFieldName]), label="%.1f Gyr"%(timeMyr/1000))
         ax.legend()
 
 
@@ -59,16 +57,14 @@ class NoneCoolingGasPropertyProfile(Profile):
         profile = yt.Profile1D(
             sp, ('gas', 'radius'), 64, 1, 1000, False, weight_field=('gas', 'mass')
         )
-        profile.add_fields(self.gasField)
+        profile.add_fields(self.gasFieldName)
         del ds
         del sp
         return profile
     
 
-    def __initPlot(self, ylim: Tuple[float, float]=None):
-        fig, ax = plt.subplots()
+    def __initPlot(self, ax: plt.Axes, ylim: Tuple[float, float]=None):        
         ax.set(xlabel='r $(kpc)$', xscale="log", yscale="log")
-
         if (self.gasProperty == GasField.Temperature):
             ax.set(
                 ylabel='kT $(keV)$',
@@ -86,26 +82,6 @@ class NoneCoolingGasPropertyProfile(Profile):
                 ylabel='S $(keV cm^2)$',
                 ylim=(10, 1000),
             )
-        
         if (ylim is not None):
             ax.set(ylim=ylim)
-        
-        return ax
-    
-
-    # with concurrent.futures.ThreadPoolExecutor(max_workers=16) as executor:
-        #     # Create a list of futures for parallel execution
-        #     futures = [executor.submit(self.__getProfile, timeMyr) 
-        #                for timeMyr in range(startTimeMyr, endTimeMyr, stepMyr)]
-        #     print("Finished submit")
-
-        #     concurrent.futures.wait(futures)
-        #     print("Finished results")
-
-        #     for future in futures:
-        #         try:
-        #             profile, timeMyr = future.result()
-        #             ax.plot(np.array(profile.x), np.array(profile[self.gasField]), label="%.1f Gyr"%(timeMyr/1000))
-        #         except Exception as e:
-        #             print(f"Error: {e}")
     

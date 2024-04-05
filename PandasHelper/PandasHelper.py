@@ -33,7 +33,6 @@ class PandasHelper():
         filePath = self.__getFilePath(simBasePath, gasField)
         if (not os.path.exists(filePath)):
             return None
-        
         df = pd.read_csv(filePath)
         result = df[(df['rKpc'] == rKpc) & (df['tMyr'] == tMyr)]['value'].to_list()
         del df
@@ -42,6 +41,13 @@ class PandasHelper():
         else:
             return result[0]
 
+
+    def resetDataBase(self, simBasePath : str, gasField : GasField):
+        filePath = self.__getFilePath(simBasePath, gasField)
+        if (not os.path.exists(filePath)):
+            return
+        os.remove(filePath)
+        
 
     def __getFilePath(self, simBasePath : str, gasField : GasField):
         fieldName = f"{gasField}".split(".")[-1]

@@ -1,9 +1,9 @@
 import matplotlib.pyplot as plt
 from typing import Tuple
-from python.modules.TimeSeries.GasPropertyTimeSeries import *
-from python.modules.TimeSeries.JetPowerTimeSeries import *
-from python.modules.TimeSeries.TurbulenceHeatingTimeSeries import *
-from python.modules.Enum.GasField import GasField
+from .TimeSeries.GasPropertyTimeSeries import *
+from .TimeSeries.JetPowerTimeSeries import *
+from .TimeSeries.TurbulenceHeatingTimeSeries import *
+from .Enum.GasField import GasField
 
 class TimeSeriesPloter:
     def __init__(self, basePath) -> None:
@@ -39,4 +39,8 @@ class TimeSeriesPloter:
     def plotRange(self, ax: plt.Axes, rStartKpc: float, rEndKpc: float, rStepKpc: float,  
                   ylim: Tuple[float, float]=None) -> plt.Axes:
         return self.timeSeriesStrategy.plotRange(ax, rStartKpc, rEndKpc, rStepKpc, ylim)
+    
+    def resetDataBase(self, property: GasField):
+        PandasHelper().resetDataBase(self.basePath, property)
+
 
