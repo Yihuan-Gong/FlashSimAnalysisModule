@@ -1,12 +1,15 @@
 from typing import List
 import pandas as pd
 import os
-from ..Enum.GasField import GasField
-from .DataModel import DataModel
+
+from .data_base_model import DataBaseModel
+
+from ..utility import GasField
+
 
 class PandasHelper():
 
-    def writeDataIntoCsv(self, simBasePath : str, gasField : GasField, data : List[DataModel]):
+    def writeDataIntoCsv(self, simBasePath : str, gasField : GasField, data : List[DataBaseModel]):
         filePath = self.__getFilePath(simBasePath, gasField)
         if (os.path.exists(filePath)):
             df = pd.read_csv(filePath)

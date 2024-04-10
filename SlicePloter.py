@@ -1,6 +1,6 @@
 import yt
 import matplotlib.pyplot as plt
-from python.modules.FieldAdder import FieldAdder
+from python.modules.utility.field_adder import FieldAdder
 
 class SlicePloter:
     

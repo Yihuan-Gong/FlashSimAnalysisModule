@@ -1,6 +1,6 @@
 import yt
 import numpy as np
-from python.modules.FieldAdder import FieldAdder
+from python.modules.utility.field_adder import FieldAdder
 
 
 class CellValueInspector:

@@ -7,9 +7,10 @@ from scipy.integrate import quad
 from scipy.optimize import curve_fit
 from typing import Tuple
 
+from ..utility import Constants
+
 class TurbulenceAnalyzor:
     def __init__(self) -> None:
-        self.kpc2cm = 3.08567758e21
         self.maxLevel = 6
         self.nindex_rho = 1.
         self.ds = None
@@ -35,8 +36,8 @@ class TurbulenceAnalyzor:
     
     def __getVelocityPowerSpectrum(self, v_components, rho, rboxKpc : float=75): # L in kpc
         nx = ny = nz = 2*rboxKpc
-        rboxCm = rboxKpc*self.kpc2cm
-        dxCm = 1.*self.kpc2cm
+        rboxCm = rboxKpc*Constants.kpc
+        dxCm = 1.*Constants.kpc
 
         # Creat the space to put 3D KE power spectrum
         Kk = np.zeros((nx // 2 + 1, ny // 2 + 1, nz // 2 + 1))
@@ -159,8 +160,8 @@ class TurbulenceAnalyzor:
             ylabel=r"$E(k)$" + "    " +  r"$cm^3/s^2$",
             title=title
         )
-        ax.loglog(self.k*self.kpc2cm, self.Ek)
-        ax.loglog(self.k*self.kpc2cm, self.__kolmogorov(self.k, self.alpha[0]), ls=":", color="0.5")
+        ax.loglog(self.k*Constants.kpc, self.Ek)
+        ax.loglog(self.k*Constants.kpc, self.__kolmogorov(self.k, self.alpha[0]), ls=":", color="0.5")
     
         
     def getDissipationRate(self):
