@@ -20,6 +20,9 @@ class SlicePloter:
         else:
             ds = yt.load('%s/perseus_merger_hdf5_plt_cnt_%04d'%(self.basePath, num))
 
+        if (field == "cray_density" or field == ("gas", "cray_density")):
+            self.__addCrFields(ds)
+        
         p = yt.SlicePlot(
             ds, 
             axis, 
@@ -52,3 +55,18 @@ class SlicePloter:
 
         del ds
         del p
+    
+
+    def __addCrFields(self, ds: yt.DatasetSeries):
+        if (('flash', 'cray') in ds.field_list):
+            ds.add_field(
+                ('gas', 'cray_density'), 
+                function=self.__crayVolumeDensity, 
+                sampling_type='cell',
+                units='erg*cm**(-3)',
+                force_override=True
+            )
+
+    
+    def __crayVolumeDensity(self, field, data):
+        return data[('flash', 'cray')] * yt.YTQuantity(1., "erg/g") * data[('flash', 'dens')]

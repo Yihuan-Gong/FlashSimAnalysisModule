@@ -28,19 +28,22 @@ class JetPowerTimeSeriesData(TimeSeriesData):
         datas = pd.read_table(self.basePath + '/' + fileName, sep="\s+", skiprows=[0,1], names=header)
         datas["Myr"] = datas['time (Myr)'] = datas['# time (s)']/Constants.Myr
         datas['jetpower (erg/s)'] = datas['energy (ergs)']/datas['dt(s)']
-        filter1 = (datas['time (Myr)'] > self.tStartMyr)
-        filter2 = (datas['time (Myr)'] < self.tEndMyr)
-        filters = filter1 & filter2
 
         if (self.__smoothingMyr is not None):
             datas["MyrGroup"] = (datas["Myr"]//self.__smoothingMyr)
             groupedData = datas.groupby("MyrGroup").mean()
+            filter1 = (groupedData['time (Myr)'] > self.tStartMyr)
+            filter2 = (groupedData['time (Myr)'] < self.tEndMyr)
+            filters = filter1 & filter2
             return DataModel(
                 x=groupedData['time (Myr)'].loc[filters].tolist(),
                 value=groupedData['jetpower (erg/s)'].loc[filters].tolist(),
                 label=None
             )
         
+        filter1 = (datas['time (Myr)'] > self.tStartMyr)
+        filter2 = (datas['time (Myr)'] < self.tEndMyr)
+        filters = filter1 & filter2
         return DataModel(
             x=datas['time (Myr)'].loc[filters].tolist(),
             value=datas['jetpower (erg/s)'].loc[filters].tolist(),
