@@ -1,33 +1,15 @@
 from typing import List
 
+from .analyzor import Analyzor
 from ..utility import GasField
 from ..data.profile_data import *
 from ..data import DataModel
-from ..data_base import PandasHelper
 
-class ProfileAnalyzor:
-    __gasProperty: GasField = None
-    __basePath: str = None
-    __fileStepMyr: int = 1
+class ProfileAnalyzor(Analyzor):
     __rStartKpc: float = None
     __rEndKpc: float = None
     __rStepKpc: float = None
     __profileData: ProfileData = None
-
-
-    def setField(self, gasField: GasField):
-        self.__gasProperty = gasField
-        return self
-
-    
-    def setBasePath(self, basePath: str):
-        self.__basePath = basePath
-        return self
-    
-
-    def setFileStepMyr(self, fileStepMyr: int):
-        self.__fileStepMyr = fileStepMyr
-        return self
     
 
     def setRadiusSpanKpc(self, rStartKpc: float, rEndKpc: float, rStepKpc: float):
@@ -50,44 +32,33 @@ class ProfileAnalyzor:
             self.__profileData.setTimeMyr(timeMyr)
             listOfData.append(self.__profileData.getData())
         return listOfData
-    
 
-    def resetDataBase(self):
-        if (self.__basePath is None):
-            raise Exception("You should excute .setBasePath() beforehand")
-        if (self.__gasProperty is None):
-            raise Exception("You should excute .setField() beforehand")
-        PandasHelper().resetDataBase(self.__basePath, self.__gasProperty)
-        return self
-
-
-    def __checkInputCompleted(self):
-        if (self.__gasProperty is None):
-            raise Exception("Please excute .setField()")
-        if (self.__basePath is None):
-            raise Exception("Please excute .setBasePath()")
-        if (self.__rStartKpc is None or self.__rEndKpc is None or self.__rStepKpc is None):
-            raise Exception("Please excute .setRadiusSpanKpc()")
-        
     
     def __setProfileDataImpl(self):
-        self.__checkInputCompleted()
+        self._checkBasicSetting()
+        if (self.__rStartKpc is None or self.__rEndKpc is None or self.__rStepKpc is None):
+            raise Exception("Please excute .setRadiusSpanKpc()")
         self.__profileData = self.__getProfileDataImpl()
-        self.__profileData.setBasePath(self.__basePath)
-        self.__profileData.setFileStepMyr(self.__fileStepMyr)
+        self.__profileData.setBasePath(self._basePath)
+        self.__profileData.setHdf5FileTitle(self._hdf5Title)
+        self.__profileData.setFileStepMyr(self._fileStepMyr)
+        self.__profileData.setShape(self._shape)
         self.__profileData.setRadiusSpanKpc(self.__rStartKpc, self.__rEndKpc, self.__rStepKpc)
 
 
     def __getProfileDataImpl(self) -> ProfileData:
-        if (self.__gasProperty == GasField.Temperature or
-            self.__gasProperty == GasField.Pressure or
-            self.__gasProperty == GasField.Density or
-            self.__gasProperty == GasField.Entropy):
-            return GasPropertyProfileData(self.__gasProperty)
-        elif (self.__gasProperty == GasField.CoolingTime):
+        if (self._gasProperty == GasField.Temperature or
+            self._gasProperty == GasField.Pressure or
+            self._gasProperty == GasField.Density or
+            self._gasProperty == GasField.Entropy):
+            return GasPropertyProfileData(self._gasProperty)
+        elif (self._gasProperty == GasField.CoolingTime):
             return CoolingTimeProfileData()
-        elif (self.__gasProperty == GasField.TurbulenceHeating):
-            return TurbulenceHeatingProfileData()
+        elif (self._gasProperty == GasField.TurbulenceHeating):
+            turbHeatingProfile = TurbulenceHeatingProfileData()
+            if (self._rhoIndex is not None):
+                turbHeatingProfile.setRhoIndex(self._rhoIndex)
+            return turbHeatingProfile
         else:
             raise NotImplementedError("This gas property does not support profile plot, please check the document")
 

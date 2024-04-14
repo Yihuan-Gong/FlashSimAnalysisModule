@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 import yt
 import numpy as np
 # import concurrent.futures
@@ -7,7 +6,7 @@ from typing import Tuple
 
 from .profile_data import ProfileData
 from ..data import DataModel
-from ...utility import GasField, FieldAdder
+from ...utility import GasField, Shape, FieldAdder
 
 '''
     This class can only be used to plot
@@ -26,6 +25,8 @@ class GasPropertyProfileData(ProfileData):
 
     
     def getData(self) -> DataModel:
+        if (self.shape == Shape.Box):
+            raise ValueError("GasPropertyProfile only support Shape.Sphere")
         profile = self.__getProfile()
         return DataModel(
             x = np.array(profile.x).tolist(),

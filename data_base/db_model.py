@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 @dataclass
-class DataBaseModel:
+class DbModel:
     rKpc : float
     tMyr : float
-    value : float
+    value: object

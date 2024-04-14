@@ -1,63 +1,77 @@
-from typing import List
+from typing import List, Tuple
 import pandas as pd
 import os
+from typing import Callable
 
-from .data_base_model import DataBaseModel
+from .db_model import DbModel
+from ..utility import GasField, Shape
 
-from ..utility import GasField
-
-
+'''
+    PandasHelper can only read/write the database using DbModel
+'''
 class PandasHelper():
 
-    def writeDataIntoCsv(self, simBasePath : str, gasField : GasField, data : List[DataBaseModel]):
-        filePath = self.__getFilePath(simBasePath, gasField)
+    def writeDataIntoCsv(self, simBasePath : str, gasField : GasField, shape: Shape, dbModelList: List[DbModel]):
+        dfs = [self.__dbModelToDataFrame(dbModel) for dbModel in dbModelList]
+        newDf = pd.concat(dfs, ignore_index=True)
+        
+        filePath = self.__getFilePath(simBasePath, gasField, shape)
         if (os.path.exists(filePath)):
             df = pd.read_csv(filePath)
+            df = df.append(newDf, ignore_index=True)
         else:
             self.__createCsvDir(simBasePath)
-            df = pd.DataFrame({
-                'rKpc' : pd.Series(dtype='float'),
-                'tMyr' : pd.Series(dtype='float'),
-                'value' : pd.Series(dtype='float')
-            })
-        
-        for pointData in data:
-            df = df.append({
-                'rKpc' : pointData.rKpc,
-                'tMyr' : pointData.tMyr,
-                'value' : pointData.value
-            }, ignore_index=True)
+            df = newDf
 
         df.to_csv(filePath, index=False)
-        del df
+        del df, newDf
 
-
-    def getDataFromCsv(self, simBasePath : str, gasField : GasField, rKpc : float, tMyr : float) -> float:
-        filePath = self.__getFilePath(simBasePath, gasField)
-        if (not os.path.exists(filePath)):
+    '''
+        Return None if file not found, or file exist but no matching data found
+    '''
+    def getDataFromCsv(self, simBasePath : str, gasField : GasField, shape: Shape, 
+                       rKpc : float, tMyr : float) -> pd.DataFrame:
+        resultRow = self.__getData(simBasePath, gasField, shape, rKpc, tMyr)
+        if (resultRow is None):
             return None
-        df = pd.read_csv(filePath)
-        result = df[(df['rKpc'] == rKpc) & (df['tMyr'] == tMyr)]['value'].to_list()
-        del df
-        if (len(result) == 0):
+        if (len(resultRow) == 0):
             return None
-        else:
-            return result[0]
+        return resultRow
+            # return resultRow['value'].to_list()[0]
 
-
-    def resetDataBase(self, simBasePath : str, gasField : GasField):
-        filePath = self.__getFilePath(simBasePath, gasField)
+    
+    def resetDataBase(self, simBasePath : str, gasField : GasField, shape: Shape):
+        filePath = self.__getFilePath(simBasePath, gasField, shape)
         if (not os.path.exists(filePath)):
             return
         os.remove(filePath)
+
+
+    def __getData(self, simBasePath: str, gasField: GasField, shape: Shape, rKpc: float, tMyr: float) -> pd.DataFrame:
+        filePath = self.__getFilePath(simBasePath, gasField, shape)
+        if (not os.path.exists(filePath)):
+            return None
+        df = pd.read_csv(filePath)
+        return df[(df['rKpc'] == rKpc) & (df['tMyr'] == tMyr)]
         
 
-    def __getFilePath(self, simBasePath : str, gasField : GasField):
+    def __getFilePath(self, simBasePath : str, gasField : GasField, shape: Shape):
         fieldName = f"{gasField}".split(".")[-1]
-        return f"{simBasePath}/Csv/{fieldName}.csv"
+        shapeName = f"{shape}".split(".")[-1]
+        return f"{simBasePath}/Csv/{fieldName}_{shapeName}.csv"
     
     
     def __createCsvDir(self, simBasePath : str):
         fileDir = f"{simBasePath}/Csv/"
         if (not os.path.exists(fileDir)):
             os.makedirs(fileDir)
+
+    
+    def __dbModelToDataFrame(self, dbModel: DbModel) -> pd.DataFrame:
+        if (type(dbModel.value) == int or type(dbModel.value) == float):
+            return pd.DataFrame.from_dict([dbModel.__dict__])
+        else:
+            df = pd.DataFrame.from_dict([dbModel.value.__dict__])
+            df.insert(0, "rKpc", dbModel.rKpc)
+            df.insert(1, "tMyr", dbModel.tMyr)
+            return df

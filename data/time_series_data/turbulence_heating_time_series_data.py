@@ -1,25 +1,35 @@
-import matplotlib.pyplot as plt
 import yt
-import numpy as np
-import pandas as pd
-import os
 from typing import List
 
-from python.modules.data.data import DataModel
 
 from ..time_series_data.time_series_data import TimeSeriesData
+from ..data_model import DataModel
+from ..turb_data_model import TurbDataModel
 from ...analyzor.turbulence_analyzor import TurbulenceAnalyzor
-from ...data_base import PandasHelper, DataBaseModel
-from ...utility import GasField
+from ...data_base import DbModel, TurbPandasHelper, TurbDbModel
+from ...utility import GasField, Shape
 
 
 class TurbulenceHeatingTimeSeriesData(TimeSeriesData):
+    turbulenceAnalyzor: TurbulenceAnalyzor
+    turbPandasHelper: TurbPandasHelper
+    rhoIndex: float = None
+
     def __init__(self) -> None:
         super().__init__()
         self.turbulenceAnalyzor = TurbulenceAnalyzor()
+        self.turbPandasHelper = TurbPandasHelper()
     
 
+    def setRhoIndex(self, rhoIndex: float):
+        self.rhoIndex = rhoIndex
+
+
     def getData(self) -> DataModel:
+        if (self.shape != Shape.Box):
+            raise ValueError("Turbulence heating only support box shape!")
+        if (self.rhoIndex is None):
+            raise ValueError("You must set the rho index")
         return DataModel(
             x=self.t,
             value=self.__getHeatingRateTs(),
@@ -27,22 +37,44 @@ class TurbulenceHeatingTimeSeriesData(TimeSeriesData):
         )
     
 
-    def __getHeatingRateTs(self) -> List[float]:
-        heatingRates = []
+    def __getHeatingRateTs(self) -> TurbDataModel:
+        turbDataList: List[TurbDbModel] = []
         for timeMyr in self.t:
-            value = self.pandasHelper.getDataFromCsv(self.basePath, GasField.TurbulenceHeating, self.rKpc, timeMyr)
-            if (value is not None):
-                heatingRates.append(value)
+            turbData = self.turbPandasHelper.getTurbDataFromCsv(
+                self.basePath,
+                self.shape,
+                self.rKpc,
+                timeMyr,
+                self.rhoIndex
+            )
+            if (turbData is not None):
+                turbDataList.append(turbData)
                 continue
+
             ds = yt.load('%s/perseus_merger_hdf5_plt_cnt_%04d'%(self.basePath, int(timeMyr/self.fileStepMyr)))
-            value = self.turbulenceAnalyzor.setDensityWeightingIndex(1) \
+            turbDataTemp = self.turbulenceAnalyzor.setDensityWeightingIndex(self.rhoIndex) \
                                            .setDataSeries(ds) \
                                            .setBoxSize(self.rKpc) \
                                            .calculatePowerSpectrum() \
-                                           .getDissipationRate()['turb_heating_rate']
-            heatingRates.append(value)
-            self.pandasHelper.writeDataIntoCsv(self.basePath, GasField.TurbulenceHeating, [DataBaseModel(self.rKpc, timeMyr, value)])
-        return heatingRates
+                                           .getDissipationRate()
+            turbData = TurbDbModel(
+                rhoIndex=self.rhoIndex,
+                upperLimit=turbDataTemp["turb_heating_rate_upper_limit"],
+                lowerLimit=turbDataTemp["turb_heating_rate_lower_limit"]
+            )
+            turbDataList.append(turbData)
+            self.pandasHelper.writeDataIntoCsv(
+                self.basePath, 
+                GasField.TurbulenceHeating, 
+                self.shape,
+                [DbModel(rKpc=self.rKpc, tMyr=timeMyr, value=turbData)]
+            )
+
+        return TurbDataModel(
+            rhoIndex=self.rhoIndex,
+            upperLimit=[x.upperLimit for x in turbDataList],
+            lowerLimit=[x.lowerLimit for x in turbDataList]
+        )
 
 
 

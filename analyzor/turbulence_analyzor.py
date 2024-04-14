@@ -17,8 +17,11 @@ class TurbulenceAnalyzor:
         self.rboxKpc = None
         self.k = None
         self.Ek = None
-        self.alpha = None
-    
+        self.linearFittedAlpha = None
+        self.logFittedAlpha = None
+        self.dissipationRateUpperLimit = None
+        self.dissipationRateLowerLimit = None
+
     
     def __rho_g1(self, x, rho_g0=0.472e7, a=600, a_c=60, c=0.17, n=5):
         alpha = -1 - n*(c-1)/(c-a/a_c)
@@ -76,17 +79,44 @@ class TurbulenceAnalyzor:
         k = 0.5 * (kbins[0 : N - 1] + kbins[1:N])
         E_spectrum = E_spectrum[1:N]
 
+        self.k = k
+        self.Ek = E_spectrum
+
+        del v_components, Kk, kx3d, ky3d, kz3d, k3d
+        return
+
+    
+    def __getDissipationRateUpperLimit(self) -> float:
         # Fit the E(k)-k relation by Kolmogorov -5/3 law
         initialGuess = 0.05
-        alpha, pcov = curve_fit(self.__kolmogorov, k, E_spectrum, initialGuess)
-        
-        del v_components, Kk, kx3d, ky3d, kz3d, k3d
-        # return kmax, Emax, fittedDissipationRate, Eheating
-        return k, E_spectrum, alpha
-
-    def __getDissipationRate(self, alpha : float):
-        fittedDissipationRate = (alpha[0])**(3/2)
+        # alpha, pcov = curve_fit(self.__kolmogorov, self.k, self.Ek, initialGuess)
+        # fit E(k) = alpha * k^(-5/3)
+        parms, pcov = curve_fit(
+            lambda k, alpha: alpha*k**(-5/3),
+            self.k, 
+            self.Ek, 
+            initialGuess
+        )
+        self.linearFittedAlpha = parms[0]
+        fittedDissipationRate = (parms[0])**(3/2)
         return fittedDissipationRate
+    
+
+    def __getDissipationRateLowerLimit(self) -> float:
+        initialGuess = np.log10(0.05)
+        x = np.log10(self.k)
+        y = np.log10(self.Ek)
+        # Fit logE(k) = -5/3 * log(k) + log(alpha)
+        parms, pcov = curve_fit(
+            lambda x, b: -5./3.*x + b,
+            x,
+            y,
+            initialGuess
+        )
+        self.logFittedAlpha = 10**(parms[0])  # log(alpha) = parms[0]
+        fittedDissipationRate = (10**(parms[0]))**(3/2)
+        return fittedDissipationRate
+
     
     def __getHeatingRate(self, dissipationRate : float, rboxKpc : float):
         Eheating = dissipationRate*(2e33)*self.__M_g1(1.24*rboxKpc)[0]
@@ -146,7 +176,9 @@ class TurbulenceAnalyzor:
         vely = self.__extractFieldValues(self.ds, self.rboxKpc, ('gas', 'velocity_y'))
         velz = self.__extractFieldValues(self.ds, self.rboxKpc, ('gas', 'velocity_z'))
         rho = self.__extractFieldValues(self.ds, self.rboxKpc, ('gas', 'density'))
-        self.k, self.Ek, self.alpha = self.__getVelocityPowerSpectrum([velx, vely, velz], rho, rboxKpc=self.rboxKpc)
+        self.__getVelocityPowerSpectrum([velx, vely, velz], rho, rboxKpc=self.rboxKpc)
+        self.dissipationRateUpperLimit = self.__getDissipationRateUpperLimit()
+        self.dissipationRateLowerLimit = self.__getDissipationRateLowerLimit()
         return self
 
 
@@ -161,18 +193,25 @@ class TurbulenceAnalyzor:
             title=title
         )
         ax.loglog(self.k*Constants.kpc, self.Ek)
-        ax.loglog(self.k*Constants.kpc, self.__kolmogorov(self.k, self.alpha[0]), ls=":", color="0.5")
+        ax.loglog(self.k*Constants.kpc, self.__kolmogorov(self.k, self.linearFittedAlpha), 
+                  ls=":", color="0.5", label="upper limit")
+        ax.loglog(self.k*Constants.kpc, self.__kolmogorov(self.k, self.logFittedAlpha), 
+                  ls=":", color="0.5", label="lower limit")
+
     
         
     def getDissipationRate(self):
         if (self.Ek is None):
             raise RuntimeError("You should excute calculatePowerSpectrum() at first")
-        dissipationRate = self.__getDissipationRate(self.alpha)
-        heatingRate = self.__getHeatingRate(dissipationRate, self.rboxKpc)
+        
+        heatingRateUpperLimit = self.__getHeatingRate(self.dissipationRateUpperLimit, self.rboxKpc)
+        heatingRateLowerLimit = self.__getHeatingRate(self.dissipationRateLowerLimit, self.rboxKpc)
         dic = {
             'l_kpc' : self.rboxKpc,
-            'dissipation_rate' : dissipationRate,
-            'turb_heating_rate' : heatingRate
+            'dissipation_rate_upper_limit' : self.dissipationRateUpperLimit,
+            'dissipation_rate_lower_limit' : self.dissipationRateLowerLimit,
+            'turb_heating_rate_upper_limit' : heatingRateUpperLimit,
+            'turb_heating_rate_lower_limit' : heatingRateLowerLimit
         }
         return dic
     

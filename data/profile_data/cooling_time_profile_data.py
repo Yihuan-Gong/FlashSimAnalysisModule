@@ -5,7 +5,7 @@ from typing import Tuple
 
 from .profile_data import ProfileData
 from ..data import DataModel
-from ...utility import FieldAdder, Constants
+from ...utility import FieldAdder, Shape
 
 
 class CoolingTimeProfileData(ProfileData):
@@ -16,6 +16,8 @@ class CoolingTimeProfileData(ProfileData):
         
 
     def getData(self) -> DataModel:
+        if (self.shape == Shape.Box):
+            raise ValueError("CoolingTimeProfile only support Shape.Sphere")
         profile = self.__getProfile()
         return DataModel(
             x = np.array(profile.x).tolist(),

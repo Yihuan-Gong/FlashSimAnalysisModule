@@ -8,7 +8,7 @@ from python.modules.data.data import DataModel
 
 from .time_series_data import TimeSeriesData
 from ...utility import GasField, FieldAdder
-from ...data_base import PandasHelper, DataBaseModel
+from ...data_base import DbModel
 
 
 class GasPropertyTimeSeriesData(TimeSeriesData):
@@ -31,31 +31,41 @@ class GasPropertyTimeSeriesData(TimeSeriesData):
     def __getTimeSeries(self):
         timeSeries = []
         for timeMyr in self.t:
+            value: float # The field value at the specific (r, t)
             # Find the calculated result from data base
-            value = self.pandasHelper.getDataFromCsv(self.basePath, self.gasProperty, self.rKpc, timeMyr)
-            if (value is not None):
+            data = self.pandasHelper.getDataFromCsv(
+                self.basePath, 
+                self.gasProperty,
+                self.shape, 
+                self.rKpc, 
+                timeMyr
+            )
+            if (data is not None):
+                value = data["value"].to_list()[0]
                 timeSeries.append(value)
                 continue
             
             # If the calculated result does not exist in data base,
             # we calculate one here
-            ds = yt.load('%s/perseus_merger_hdf5_plt_cnt_%04d'%(self.basePath, timeMyr/self.fileStepMyr))
             if (self.gasProperty == GasField.Luminosity):
-                ds = yt.load('%s/perseus_merger_hdf5_plt_cnt_%04d'%(self.basePath, timeMyr/self.fileStepMyr),
+                ds = yt.load('%s/%s_hdf5_plt_cnt_%04d'%(self.basePath, self.hdf5FileTitle, timeMyr/self.fileStepMyr),
                              default_species_fields="ionized")
                 yt.add_xray_emissivity_field(ds, 0.5, 7.0, table_type='apec', metallicity=0.3)
-                sp = ds.sphere((0,0,0), (self.rKpc, "kpc"))
-                value = float(sp.quantities.total_quantity(self.gasFieldName).d)
+                region = self.ytDsHelper.loadRegionFromDs(ds, self.shape, self.rKpc)
+                value = float(region.quantities.total_quantity(self.gasFieldName).d)
             else:
-                ds = yt.load('%s/perseus_merger_hdf5_plt_cnt_%04d'%(self.basePath, timeMyr/self.fileStepMyr))
-                sp = ds.sphere((0,0,0), (self.rKpc, "kpc"))
-                value = float(sp.quantities.weighted_average_quantity(self.gasFieldName, self.weightFieldName).d)
-            del ds
-            del sp
+                region = self.ytDsHelper.loadRegion(self.basePath, self.hdf5FileTitle, self.shape, self.rKpc, timeMyr, self.fileStepMyr)
+                value = float(region.quantities.weighted_average_quantity(self.gasFieldName, self.weightFieldName).d)
+            del region
 
             # Write the calculated result into data base
             timeSeries.append(value)
-            self.pandasHelper.writeDataIntoCsv(self.basePath, self.gasProperty, [DataBaseModel(self.rKpc, timeMyr, value)])
+            self.pandasHelper.writeDataIntoCsv(
+                self.basePath, 
+                self.gasProperty,
+                self.shape,
+                [DbModel(self.rKpc, timeMyr, value)]
+            )
 
         return timeSeries
     
@@ -71,7 +81,9 @@ class GasPropertyTimeSeriesData(TimeSeriesData):
             return ('gas', 'entropy')
         elif (self.gasProperty == GasField.Luminosity):
             return ("gas","xray_luminosity_0.5_7.0_keV")
-        
+    
+
+    
     
     # def __init__(self, basePath: str, gasProperty: GasField, 
     #              startTimeMyr: float, endTimeMyr: float, stepMyr: float,
