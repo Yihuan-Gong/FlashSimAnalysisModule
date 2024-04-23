@@ -1,5 +1,5 @@
 import yt
-import matplotlib.pyplot as plt
+import numpy as np
 from python.modules.utility.field_adder import FieldAdder
 
 class SlicePloter:
@@ -12,13 +12,25 @@ class SlicePloter:
              axis='z', field=("gas", "temp_in_keV"), sliceCenter = [0,0,0], markCenterPos = [(0,0)],
              setZlim=False, min=0.8, max=15, contour=None, n_contour=20, grid = False, markCenter = False, 
              particles = False, velocity = False, velocityScale=1e10):
-    
+
+        hd5fPath: str
         if (chkFile):
-            ds = yt.load('%s/perseus_merger_hdf5_chk_%04d'%(self.basePath, num))
+            hd5fPath = '%s/perseus_merger_hdf5_chk_%04d'%(self.basePath, num)
         elif (forcePlot):
-            ds = yt.load('%s/perseus_merger_forced_hdf5_plt_cnt_%04d'%(self.basePath, num))
+            hd5fPath = '%s/perseus_merger_forced_hdf5_plt_cnt_%04d'%(self.basePath, num)
         else:
-            ds = yt.load('%s/perseus_merger_hdf5_plt_cnt_%04d'%(self.basePath, num))
+            hd5fPath = '%s/perseus_merger_hdf5_plt_cnt_%04d'%(self.basePath, num)
+        
+        ds: yt.DatasetSeries
+        if (field == "xray" or
+            field == "emissivity" or 
+            field == "xray_emissivity" or 
+            field == ("gas", "xray_emissivity_0.5_7.0_keV")):
+            field = ("gas", "xray_emissivity_0.5_7.0_keV")
+            ds = yt.load(hd5fPath, default_species_fields="ionized")
+            yt.add_xray_emissivity_field(ds, 0.5, 7.0, table_type='apec', metallicity=0.3)
+        else:
+            ds = yt.load(hd5fPath)
 
         if (field == "cray_density" or field == ("gas", "cray_density")):
             self.__addCrFields(ds)
@@ -69,4 +81,4 @@ class SlicePloter:
 
     
     def __crayVolumeDensity(self, field, data):
-        return data[('flash', 'cray')] * yt.YTQuantity(1., "erg/g") * data[('flash', 'dens')]
+        return np.maximum((data["cray"].d)*(data["density"].d), 1e-15)*yt.YTQuantity(1., "erg*cm**(-3)")
