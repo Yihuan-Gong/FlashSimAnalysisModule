@@ -2,16 +2,13 @@ from typing import List
 import yt
 import numpy as np
 import os
-from .utility.field_adder import FieldAdder
-from .utility.yt_ploter2d_mode import YtPloter2DMode
-from .utility.hdf5_mode import Hdf5Mode
-from .utility.yt_ds_helper import YtDsHelper
+from .ploter2d import Ploter2D
+from ..utility.field_adder import FieldAdder
+from ..utility.yt_ploter2d_mode import YtPloter2DMode
+from ..utility.hdf5_mode import Hdf5Mode
+from ..utility.yt_ds_helper import YtDsHelper
 
-class YtPloter2D:
-    __simPath: str
-    __hdf5FileTitle: str
-    __hdf5FileMode: Hdf5Mode = Hdf5Mode.PlotFile
-    __fileStepMyr: int
+class YtPloter2D(Ploter2D):
     __sizeKpc: float
     __timeMyr: int
     __plotMode: YtPloter2DMode
@@ -40,11 +37,11 @@ class YtPloter2D:
         You must perform .setFileProperties() and .setBasicPlotProperties() before excuting this function
         '''
         ds = YtDsHelper().loadDs(
-            simPath=self.__simPath,
-            fileTitle=self.__hdf5FileTitle,
+            simPath=self._simPath,
+            fileTitle=self._hdf5FileTitle,
             timeMyr=self.__timeMyr,
-            fileStepMyr=self.__fileStepMyr,
-            hd5fMode=self.__hdf5FileMode,
+            fileStepMyr=self._fileStepMyr,
+            hd5fMode=self._hdf5FileMode,
             ionized=self.__ionized
         )
         if (self.__field == "cray_density" or self.__field == ("gas", "cray_density")):
@@ -86,7 +83,7 @@ class YtPloter2D:
         return self
     
 
-    def getYtPlotobject(self):
+    def getYtPlotObject(self):
         if (self.__plot == None):
             raise Exception("You should excute .plot() at first")
         return self.__plot
@@ -104,14 +101,6 @@ class YtPloter2D:
 
     def close(self):
         pass
-
-
-    def setFileProperties(self, simPath: str, hdf5Title: str, hdf5Mode: Hdf5Mode, fileStepMyr: int):
-        self.__simPath = simPath
-        self.__hdf5FileTitle = hdf5Title
-        self.__hdf5FileMode = hdf5Mode
-        self.__fileStepMyr = fileStepMyr
-        return self
 
 
     def setBasicPlotProperties(self, mode: YtPloter2DMode, timeMyr: int, sizeKpc: float, axis: str, field):
