@@ -70,8 +70,6 @@ class GasPropertyTimeSeriesData(TimeSeriesData):
             gasFieldName = GasFieldYtFieldNameMapping().map(calculationInfo.gasProperty)
             if (calculationInfo.gasProperty == GasField.Luminosity):
                 ds = YtDsHelper().loadDs(self._simFile, timeMyr, True)
-                # ds = yt.load('%s/%s_hdf5_plt_cnt_%04d'%(self.basePath, self.hdf5FileTitle, timeMyr/self.fileStepMyr),
-                #              default_species_fields="ionized")
                 yt.add_xray_emissivity_field(ds, 0.5, 7.0, table_type='apec', metallicity=0.3)
                 region = YtDsHelper().loadRegionFromDs(ds, calculationInfo.shape, calculationInfo.rKpc)
                 value = float(region.quantities.total_quantity(gasFieldName).d)

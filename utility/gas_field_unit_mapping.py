@@ -10,7 +10,8 @@ class GasFieldUnitMapping:
             GasField.Temperature: "keV",
             GasField.Pressure: "Ba",
             GasField.Entropy: "keV*cm^2",
-            GasField.Luminosity: "erg/s"
+            GasField.Luminosity: "erg/s",
+            GasField.Emissivity: "erg/(s*cm^3)"
         }
     
     

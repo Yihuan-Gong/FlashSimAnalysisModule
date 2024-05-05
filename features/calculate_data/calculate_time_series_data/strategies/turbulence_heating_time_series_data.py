@@ -40,25 +40,24 @@ class TurbulenceHeatingTimeSeriesData(TimeSeriesData):
         )
         self.fileNums = [int(x/self._simFile.fileStepMyr) for x in self.t]
         
-        if (self._calculationInfo.shape != Shape.Box):
+        if (calculationInfo.shape != Shape.Box):
             raise ValueError("Turbulence heating only support box shape!")
-        if (self.rhoIndex is None):
-            raise ValueError("You must set the rho index")
         return Data1dReturnModel(
             x=self.t,
-            value=self.__getHeatingRateTs(),
+            value=self.__getHeatingRateTs(calculationInfo),
             valueUint="erg/s",
-            label=(self._calculationInfo.rKpc, "kpc")
+            label=(calculationInfo.rKpc, "kpc")
         )
     
     
-    def __getHeatingRateTs(self) -> TurbDataReturnModel:
+    def __getHeatingRateTs(self, calculationInfo: TurbulenceHeatingTimeSeriesCalculationInfoModel)\
+        -> TurbDataReturnModel:
         turbDataList: List[TurbDbModel] = []
         for timeMyr in self.t:
             turbData = TurbPandasHelper().getTurbDataFromCsv(
                 simBasePath=self._simFile.simPath,
-                shape=self._calculationInfo.shape,
-                rKpc=self._calculationInfo.rKpc,
+                shape=calculationInfo.shape,
+                rKpc=calculationInfo.rKpc,
                 tMyr=timeMyr,
                 rhoIndex=self.rhoIndex
             )
@@ -67,11 +66,10 @@ class TurbulenceHeatingTimeSeriesData(TimeSeriesData):
                 continue
 
             ds = YtDsHelper().loadDs(self._simFile, timeMyr)
-            # yt.load('%s/perseus_merger_hdf5_plt_cnt_%04d'%(self.basePath, int(timeMyr/self.fileStepMyr)))
             turbDataTemp = TurbulenceAnalyzor()\
                 .setDensityWeightingIndex(self.rhoIndex) \
                 .setDataSeries(ds) \
-                .setBoxSize(self._calculationInfo.rKpc) \
+                .setBoxSize(calculationInfo.rKpc) \
                 .calculatePowerSpectrum() \
                 .getDissipationRate()
             turbData = TurbDbModel(
@@ -83,9 +81,9 @@ class TurbulenceHeatingTimeSeriesData(TimeSeriesData):
             TurbPandasHelper().writeDataIntoCsv(
                 simBasePath=self._simFile.simPath, 
                 field="TurbulenceHeating", 
-                shape=self._calculationInfo.shape,
+                shape=calculationInfo.shape,
                 dbModelList=[DbModel(
-                    rKpc=self._calculationInfo.rKpc, 
+                    rKpc=calculationInfo.rKpc, 
                     tMyr=timeMyr, 
                     value=turbData
                 )]

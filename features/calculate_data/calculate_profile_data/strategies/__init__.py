@@ -1,4 +1,3 @@
 from .gas_property_profile_data import GasPropertyProfileData
 from .turbulence_heating_profile_data import TurbulenceHeatingProfileData
-from .cooling_time_profile_data import CoolingTimeProfileData
 from .profile_data import ProfileData

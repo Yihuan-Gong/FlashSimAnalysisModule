@@ -7,5 +7,4 @@ class GasField(Enum):
     Entropy = 4
     CoolingTime = 5
     Luminosity = 6
-    JetPower = 7
-    TurbulenceHeating = 8
+    Emissivity = 7

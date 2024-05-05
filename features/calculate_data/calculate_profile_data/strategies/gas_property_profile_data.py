@@ -1,12 +1,15 @@
 import yt
+from yt import derived_field
 import numpy as np
-# import concurrent.futures
-# from multiprocessing import Pool
-from typing import Tuple
 
 from .profile_data import ProfileData
-from ..data import DataModel
-from ...utility import GasField, Shape, FieldAdder
+from ..models import GasPropertyProfileCalculationInfoModel
+from .....models import Data1dReturnModel
+from .....enum import GasField, Shape
+from .....services.yt_ds_helper import YtDsHelper
+from .....utility import FieldAdder
+from .....utility.gas_field_unit_mapping import GasFieldUnitMapping
+from .....utility.gas_field_yt_field_name_mapping import GasFieldYtFieldNameMapping
 
 '''
     This class can only be used to plot
@@ -17,90 +20,74 @@ from ...utility import GasField, Shape, FieldAdder
 '''
 
 class GasPropertyProfileData(ProfileData):
-    def __init__(self, gasProperty: GasField):
+    __gasFieldName: str
+    
+    def __init__(self):
         super().__init__()
         FieldAdder.AddFields()
-        self.gasProperty = gasProperty
-        self.gasFieldName = self.__getFieldName()
 
     
-    def getData(self) -> DataModel:
-        if (self.shape == Shape.Box):
-            raise ValueError("GasPropertyProfile only support Shape.Sphere")
-        profile = self.__getProfile()
-        return DataModel(
-            x = np.array(profile.x).tolist(),
-            value = np.array(profile[self.gasFieldName]).tolist(),
-            label = (self.tMyr/1000, "Gyr")
-        )
+    def getData(self) -> Data1dReturnModel:
+        calculationInfo: GasPropertyProfileCalculationInfoModel \
+            = self._calculationInfo
+        self.__gasFieldName = GasFieldYtFieldNameMapping().map(calculationInfo.gasProperty)
         
-    
-    def __getFieldName(self):
-        if (self.gasProperty == GasField.Density):
-            return ('gas', 'density')
-        elif (self.gasProperty == GasField.Temperature):
-            return ('gas', 'temp_in_keV')
-        elif (self.gasProperty == GasField.Pressure):
-            return ('gas', 'pressure')
-        elif (self.gasProperty == GasField.Entropy):
-            return ('gas', 'entropy')
-
-
-    def __getProfile(self):
-        ds = yt.load('%s/perseus_merger_hdf5_plt_cnt_%04d'%(self.basePath, self.fileNum))
-        sp = ds.sphere('c', (self.rEndKpc, 'kpc'))
-        numberOfDatas = int((self.rEndKpc - self.rStartKpc)/self.rStepKpc)
-        profile = yt.Profile1D(
-            sp, ('gas', 'radius'), numberOfDatas, self.rStartKpc, self.rEndKpc, False, weight_field=('gas', 'mass')
+        if (calculationInfo.gasProperty == GasField.Luminosity):
+            raise ValueError("So far GasField.Luminosity has not been developed yet. Please \
+                use GasField.Emissivity at first and then do volume integral by your self.")
+        
+        profile = self.__getProfile(calculationInfo)
+        return Data1dReturnModel(
+            x = np.array(profile.x).tolist(),
+            value = np.array(profile[self.__gasFieldName]).tolist(),
+            valueUint=GasFieldUnitMapping().map(calculationInfo.gasProperty),
+            label = (calculationInfo.tMyr/1000, "Gyr")
         )
-        profile.add_fields(self.gasFieldName)
+
+
+    def __getProfile(self, calculationInfo: GasPropertyProfileCalculationInfoModel) \
+        -> yt.Profile1D:
+        ds: yt.DatasetSeries
+        if (calculationInfo.gasProperty == GasField.Emissivity):
+            ds = YtDsHelper().loadDs(
+                simFile=self._simFile,
+                timeMyr=calculationInfo.tMyr,
+                ionized=True
+            )
+            yt.add_xray_emissivity_field(ds, 0.5, 7.0, table_type='apec', metallicity=0.3)
+        else:
+            ds = YtDsHelper().loadDs(
+                simFile=self._simFile,
+                timeMyr=calculationInfo.tMyr,
+            )
+        # sp = ds.sphere('c', (calculationInfo.rEndKpc, 'kpc'))
+        ds.add_field(
+            ("gas", "box_radius"), 
+            function=self.__boxR, 
+            sampling_type='cell',
+            units='kpc',
+            force_override=True
+        )
+        radiusField = ("gas", "radius") if calculationInfo.shape == Shape.Sphere else ("gas", "box_radius")
+        numberOfDatas = int((calculationInfo.rEndKpc - calculationInfo.rStartKpc)/calculationInfo.rStepKpc)
+        profile = yt.Profile1D(
+            data_source=YtDsHelper().loadRegionFromDs(ds, calculationInfo.shape, calculationInfo.rEndKpc), 
+            x_field=radiusField, 
+            x_n=numberOfDatas, 
+            x_min=calculationInfo.rStartKpc, 
+            x_max=calculationInfo.rEndKpc, 
+            x_log=calculationInfo.isLogR, 
+            weight_field=calculationInfo.weightFieldName
+        )
+        profile.add_fields(self.__gasFieldName)
         del ds
-        del sp
         return profile
     
-
-    # def __init__(self, basePath: str, gasProperty: GasField, myrPerFile:bool =True):
-    #     super().__init__(basePath, myrPerFile)
-    #     FieldAdder.AddFields()
-    #     self.gasProperty = gasProperty
-    #     self.gasFieldName = self.__getFieldName()
-
-
-    # def plot(self, ax: plt.Axes, timeMyr: float, ylim: Tuple[float, float]=None):
-    #     profile = self.__getProfile(timeMyr)
-    #     self.__initPlot(ax, ylim)
-    #     ax.plot(np.array(profile.x), np.array(profile[self.gasFieldName]), "-b", label="%.1f Gyr"%(timeMyr/1000))
-    #     ax.legend()
-
-
-    # def plotRange(self, ax: plt.Axes, startTimeMyr: float, endTimeMyr: float, stepMyr: float,  
-    #               ylim: Tuple[float, float]=None):
-    #     self.__initPlot(ax, ylim)
-    #     for timeMyr in range(startTimeMyr, endTimeMyr, stepMyr):
-    #         profile = self.__getProfile(timeMyr)
-    #         ax.plot(np.array(profile.x), np.array(profile[self.gasFieldName]), label="%.1f Gyr"%(timeMyr/1000))
-    #     ax.legend()
     
-
-    # def __initPlot(self, ax: plt.Axes, ylim: Tuple[float, float]=None):        
-    #     ax.set(xlabel='r $(kpc)$', xscale="log", yscale="log")
-    #     if (self.gasProperty == GasField.Temperature):
-    #         ax.set(
-    #             ylabel='kT $(keV)$',
-    #         )
-    #     elif (self.gasProperty == GasField.Density):
-    #         ax.set(
-    #             ylabel='Density $(g/cm^3)$',
-    #         )
-    #     elif (self.gasProperty == GasField.Pressure):
-    #         ax.set(
-    #             ylabel='Pressure $(Ba)$',
-    #         )
-    #     elif (self.gasProperty == GasField.Entropy):
-    #         ax.set(
-    #             ylabel='S $(keV cm^2)$',
-    #             ylim=(10, 1000),
-    #         )
-    #     if (ylim is not None):
-    #         ax.set(ylim=ylim)
-    
+    # @derived_field(name=("gas", "box_radius"), units="kpc", sampling_type="cell")
+    def __boxR(self, field, data):
+        return np.maximum(
+            data[("gas", "x")].d, 
+            data[("gas", "y")].d, 
+            data[("gas", "z")].d
+        )*yt.YTQuantity(1., "cm")
