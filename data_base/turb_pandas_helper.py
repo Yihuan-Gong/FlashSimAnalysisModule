@@ -1,7 +1,7 @@
 from .pandas_helper import PandasHelper
 from .db_model import DbModel
 from .turb_db_model import TurbDbModel
-from ..utility import GasField, Shape
+from ..enum.shape import Shape
 
 class TurbPandasHelper(PandasHelper):
 
@@ -12,7 +12,7 @@ class TurbPandasHelper(PandasHelper):
 
         data = self.getDataFromCsv(
             simBasePath, 
-            GasField.TurbulenceHeating, 
+            "TurbulenceHeating", 
             shape, 
             rKpc, 
             tMyr

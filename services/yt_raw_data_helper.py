@@ -3,12 +3,13 @@ import yt
 import numpy as np
 
 from .yt_ds_helper import YtDsHelper
-from .hdf5_mode import Hdf5Mode
+from ..enum.hdf5_mode import Hdf5Mode
+from ..models.sim_file_model import SimFileModel
 
 class YtRawDataHelper:
 
-    def loadRawData(self, simPath: str, fileTitle: str, timeMyr: int, fileStepMyr: int, 
-                    fields: List[Tuple[str, str]], sizeKpc: float, hd5fMode: Hdf5Mode = Hdf5Mode.PlotFile) \
+    def loadRawData(self, simFile: SimFileModel, timeMyr: int, sizeKpc: float,
+                    fields: List[Tuple[str, str]]) \
                     -> yt.data_objects.construction_data_containers.YTCoveringGrid:
         '''
         Return:
@@ -21,11 +22,8 @@ class YtRawDataHelper:
             fields.__contains__(("gas", "xray_luminosity_0.5_7.0_keV"))):
             ionzied = True
         ds = YtDsHelper().loadDs(
-            simPath=simPath,
-            fileTitle=fileTitle,
+            simFile=simFile,
             timeMyr=timeMyr,
-            fileStepMyr=fileStepMyr,
-            hd5fMode=hd5fMode,
             ionized=ionzied
         )
         if (ionzied):

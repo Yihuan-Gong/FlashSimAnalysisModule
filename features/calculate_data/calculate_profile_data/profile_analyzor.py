@@ -1,9 +1,9 @@
 from typing import List
 
-from .analyzor import Analyzor
-from ..utility import GasField
+from ....analyzor.analyzor import Analyzor
+from ....utility import GasField
 from ..data.profile_data import *
-from ..data import DataModel
+from ..data1d import DataModel
 
 class ProfileAnalyzor(Analyzor):
     __rStartKpc: float = None

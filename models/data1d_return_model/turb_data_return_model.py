@@ -2,7 +2,7 @@ from typing import List
 from dataclasses import dataclass
 
 @dataclass
-class TurbDataModel:
+class TurbDataReturnModel:
     rhoIndex: float
     upperLimit: List[float]
     lowerLimit: List[float]

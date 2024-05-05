@@ -1,21 +1,20 @@
-from typing import List, Tuple
+from typing import List
 import pandas as pd
 import os
-from typing import Callable
 
 from .db_model import DbModel
-from ..utility import GasField, Shape
+from ..enum.shape import Shape
 
 '''
     PandasHelper can only read/write the database using DbModel
 '''
 class PandasHelper():
 
-    def writeDataIntoCsv(self, simBasePath : str, gasField : GasField, shape: Shape, dbModelList: List[DbModel]):
+    def writeDataIntoCsv(self, simBasePath : str, field : str, shape: Shape, dbModelList: List[DbModel]):
         dfs = [self.__dbModelToDataFrame(dbModel) for dbModel in dbModelList]
         newDf = pd.concat(dfs, ignore_index=True)
         
-        filePath = self.__getFilePath(simBasePath, gasField, shape)
+        filePath = self.__getFilePath(simBasePath, field, shape)
         if (os.path.exists(filePath)):
             df = pd.read_csv(filePath)
             df = df.append(newDf, ignore_index=True)
@@ -29,9 +28,9 @@ class PandasHelper():
     '''
         Return None if file not found, or file exist but no matching data found
     '''
-    def getDataFromCsv(self, simBasePath : str, gasField : GasField, shape: Shape, 
+    def getDataFromCsv(self, simBasePath : str, field : str, shape: Shape, 
                        rKpc : float, tMyr : float) -> pd.DataFrame:
-        resultRow = self.__getData(simBasePath, gasField, shape, rKpc, tMyr)
+        resultRow = self.__getData(simBasePath, field, shape, rKpc, tMyr)
         if (resultRow is None):
             return None
         if (len(resultRow) == 0):
@@ -40,23 +39,23 @@ class PandasHelper():
             # return resultRow['value'].to_list()[0]
 
     
-    def resetDataBase(self, simBasePath : str, gasField : GasField, shape: Shape):
-        filePath = self.__getFilePath(simBasePath, gasField, shape)
+    def resetDataBase(self, simBasePath : str, field : str, shape: Shape):
+        filePath = self.__getFilePath(simBasePath, field, shape)
         if (not os.path.exists(filePath)):
             return
         os.remove(filePath)
 
 
-    def __getData(self, simBasePath: str, gasField: GasField, shape: Shape, rKpc: float, tMyr: float) -> pd.DataFrame:
-        filePath = self.__getFilePath(simBasePath, gasField, shape)
+    def __getData(self, simBasePath: str, field: str, shape: Shape, rKpc: float, tMyr: float) -> pd.DataFrame:
+        filePath = self.__getFilePath(simBasePath, field, shape)
         if (not os.path.exists(filePath)):
             return None
         df = pd.read_csv(filePath)
         return df[(df['rKpc'] == rKpc) & (df['tMyr'] == tMyr)]
         
 
-    def __getFilePath(self, simBasePath : str, gasField : GasField, shape: Shape):
-        fieldName = f"{gasField}".split(".")[-1]
+    def __getFilePath(self, simBasePath : str, field : str, shape: Shape):
+        fieldName = f"{field}".split(".")[-1]
         shapeName = f"{shape}".split(".")[-1]
         return f"{simBasePath}/Csv/{fieldName}_{shapeName}.csv"
     

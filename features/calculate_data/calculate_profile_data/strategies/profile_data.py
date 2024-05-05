@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 from typing import List
 
 from ..data import Data, DataModel
-from ...data_base import *
+from .....data_base import *
 
 class ProfileData(Data):
     rStartKpc: float
