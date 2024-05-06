@@ -15,7 +15,6 @@ from .....utility.gas_field_unit_mapping import GasFieldUnitMapping
 
 class GasPropertyTimeSeriesData(TimeSeriesData):
     t: range
-    fileNums: List[int]
     
     
     def __init__(self) -> None:
@@ -39,7 +38,6 @@ class GasPropertyTimeSeriesData(TimeSeriesData):
             calculationInfo.tEndMyr,
             calculationInfo.tStepMyr
         )
-        self.fileNums = [int(x/self._simFile.fileStepMyr) for x in self.t]
         return Data1dReturnModel(
             x=self.t,
             value=self.__getTimeSeries(calculationInfo),

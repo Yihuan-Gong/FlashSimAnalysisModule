@@ -6,4 +6,4 @@ from .time_series_calculation_info_model import TimeSeriesCalculationInfoModel
 class JetPowerTimeSeriesCalculationInfoModel \
     (TimeSeriesCalculationInfoModel):
     smoothingMyr: float = None
-    agnDataFileName: str = "agn_0000000000000001.dat"
+    agnDataFileName: str = "perseus_merger_agn_0000000000000001.dat"

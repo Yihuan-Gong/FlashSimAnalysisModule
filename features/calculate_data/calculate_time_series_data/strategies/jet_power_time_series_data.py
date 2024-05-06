@@ -21,7 +21,7 @@ class JetPowerTimeSeriesData(TimeSeriesData):
             )
         '''
         calculationInfo: JetPowerTimeSeriesCalculationInfoModel = self._calculationInfo
-        agnFilePath = f"{self._simFile.simPath}/{self._simFile.hdf5FileTitle}_{calculationInfo.agnDataFileName}"
+        agnFilePath = f"{self._simFile.simPath}/{calculationInfo.agnDataFileName}"
         
         header = pd.read_table(agnFilePath, sep=', ', skiprows=[0], nrows=0, engine='python').columns
         datas = pd.read_table(agnFilePath, sep="\s+", skiprows=[0,1], names=header)

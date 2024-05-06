@@ -14,7 +14,6 @@ from .....utility.turbulence_analyzor import TurbulenceAnalyzor
 
 class TurbulenceHeatingTimeSeriesData(TimeSeriesData):
     t: range
-    fileNums: List[int]
     rhoIndex: float
 
     def __init__(self) -> None:
@@ -38,7 +37,6 @@ class TurbulenceHeatingTimeSeriesData(TimeSeriesData):
             calculationInfo.tEndMyr,
             calculationInfo.tStepMyr
         )
-        self.fileNums = [int(x/self._simFile.fileStepMyr) for x in self.t]
         
         if (calculationInfo.shape != Shape.Box):
             raise ValueError("Turbulence heating only support box shape!")
