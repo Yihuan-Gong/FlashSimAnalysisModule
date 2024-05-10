@@ -1,0 +1,39 @@
+.comp decomposeVel.pro
+.comp plot_vturb.pro
+
+basedir = '/data/hyang/shared/crbub/' ; please modify it to the base path to your FLASH output files
+dir = 'fcr0.001_kconst_cool_hires' ; please modify it to the directory containing the simulation you are analyzing
+
+outdir = './data/'+dir  
+pltfile = 1 ; use this line to analyze the plotfile instead of checkpoints
+
+;-----------------------------------------------------------
+; for analyzing a single output file
+
+fnum = '0100' ; specify the number of the checkpoint/plotfile to be analyzed
+
+;ng = 128 ; number of cells near the center for velocity decomposition; default is ng=64; please test the default first and then try higher resolution grids
+
+drange = [1., 300.] ; range of turbulent velocities for plotting (in km/s)
+
+nr = 50 ; radius within which to compute turbulent kinetic energy in units of cells
+
+decomposeVel, dir=dir, fnum=fnum, pltfile=pltfile, $
+              nx1=ng, nx2=ng, nx3=ng, /out, nr=nr
+plot_vturb, indir=outdir, invar='vc', fnum=fnum, dir='all', ng=ng, $
+            drange=drange, /double, /log, cltable=3
+plot_vturb, indir=outdir, invar='vi', fnum=fnum, dir='all', ng=ng, $
+            drange=drange, /double, /log, cltable=3
+
+;-----------------------------------------------------------
+; for analyzing multiple output files 
+
+fstart = 0
+fend   = 100
+fstep  = 2
+
+; please uncomment the following line to process multiple files
+
+;for f = fstart, fend, fstep do begin & fnum = string(f, format='(I4.4)') & decomposeVel, dir=dir, fnum=fnum, pltfile=pltfile, nx1=ng, nx2=ng, nx3=ng, /out, fjetmin=0.01, nr=50
+
+exit

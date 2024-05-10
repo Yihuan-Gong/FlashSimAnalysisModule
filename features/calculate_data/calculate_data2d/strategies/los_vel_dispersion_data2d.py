@@ -1,12 +1,12 @@
 import numpy as np
 from typing import List, Tuple
 
-from .data2d import Data2D
-from ..models.return_models.data2d_return_model import Data2dReturnModel
+from .data2d import Data2d
+from ..models.data2d_return_model import Data2dReturnModel
 from .....utility.field_adder import FieldAdder
 from .....services.yt_raw_data_helper import YtRawDataHelper
 
-class LosVelDispersionData2d(Data2D):
+class LosVelDispersionData2d(Data2d):
     __velocityFieldName: Tuple[str, str]
     __xrayFieldName: Tuple[str, str]
 
@@ -39,7 +39,8 @@ class LosVelDispersionData2d(Data2D):
         return Data2dReturnModel(
             value=np.flipud(losVelDispersionMap.transpose()),
             horizontalAxis=(axes[0], axisCoorKpc),
-            verticalAxis=(axes[1], axisCoorKpc)
+            verticalAxis=(axes[1], axisCoorKpc),
+            axisUnit="kpc"
         )
 
 
@@ -72,7 +73,7 @@ class LosVelDispersionData2d(Data2D):
         cube = YtRawDataHelper().loadRawData(
             simFile=self._simFile,
             timeMyr=self._calculationInfo.timeMyr,
-            sizeKpc=self._calculationInfo.sizeKpc,
+            rBoxKpc=self._calculationInfo.rBoxKpc,
             fields=[
                 self.__xrayFieldName, 
                 self.__velocityFieldName,

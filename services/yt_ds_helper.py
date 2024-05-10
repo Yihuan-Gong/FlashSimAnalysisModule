@@ -1,7 +1,6 @@
 import yt
 
 from ..enum.shape import Shape
-from ..enum.hdf5_mode import Hdf5Mode
 from ..models.sim_file_model import SimFileModel
 
 class YtDsHelper:

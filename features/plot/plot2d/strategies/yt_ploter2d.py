@@ -2,29 +2,13 @@ from typing import List
 import yt
 import numpy as np
 import os
+
 from .ploter2d import Ploter2D
-from ..utility.field_adder import FieldAdder
-from ..utility.yt_ploter2d_mode import YtPloter2DMode
-from ..utility.hdf5_mode import Hdf5Mode
-from ..utility.yt_ds_helper import YtDsHelper
+from .....utility.field_adder import FieldAdder
+from .....enum import YtPloter2DMode
+from .....services.yt_ds_helper import YtDsHelper
 
 class YtPloter2D(Ploter2D):
-    __sizeKpc: float
-    __timeMyr: int
-    __plotMode: YtPloter2DMode
-    __axis: str = 'z'
-    __field: any = ("gas", "temp_in_keV")
-    __ionized: bool = False
-    __center: yt.YTArray = yt.YTArray([0,0,0], "kpc")
-    __markPointPos: List[any] = [(0,0)]
-    __zlimMin: float = None
-    __zlimMax: float = None
-    __contour: str = None
-    __contourNum: int = 20
-    __markGrid: bool = False
-    __markParticles: bool = False
-    __markVelocity = False
-    __velocityScale: float = 1e10
     __plot: any = None
 
 

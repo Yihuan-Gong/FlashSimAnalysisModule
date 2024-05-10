@@ -3,12 +3,10 @@ import yt
 import numpy as np
 
 from .yt_ds_helper import YtDsHelper
-from ..enum.hdf5_mode import Hdf5Mode
 from ..models.sim_file_model import SimFileModel
 
 class YtRawDataHelper:
-
-    def loadRawData(self, simFile: SimFileModel, timeMyr: int, sizeKpc: float,
+    def loadRawData(self, simFile: SimFileModel, timeMyr: int, rBoxKpc: float,
                     fields: List[Tuple[str, str]]) \
                     -> yt.data_objects.construction_data_containers.YTCoveringGrid:
         '''
@@ -30,7 +28,7 @@ class YtRawDataHelper:
             yt.add_xray_emissivity_field(ds, 0.5, 7.0, table_type='apec', metallicity=0.3)
 
         # Extract all data points in ds and convert it from AMR to fixed grid
-        low = yt.YTArray([-sizeKpc/2., -sizeKpc/2., -sizeKpc/2.], "kpc")
+        low = yt.YTArray(np.array([-rBoxKpc, -rBoxKpc, -rBoxKpc]).astype(float), "kpc")
         maxlevel = ds.max_level
         cellSizeKpc = ds.domain_width.in_units("kpc").d  / (ds.domain_dimensions * 2**maxlevel)
         dims = np.ceil(-2*low.d / cellSizeKpc).astype(int)

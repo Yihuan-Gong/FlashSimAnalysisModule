@@ -1,3 +1,4 @@
 from .sim_file_model import SimFileModel
+from .data_nd_model.data_nd_calculation_info_model import DataNdCalculationInfoModel
 from .data1d_return_model.data1d_return_model import Data1dReturnModel
 from .data1d_return_model.turb_data_return_model import TurbDataReturnModel
