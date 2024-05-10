@@ -1,9 +1,11 @@
 from dataclasses import dataclass
 
-from ....calculate_data3d.models import Data3dReturnModel
-from ......models.interfaces import VelocityReturnModel
+from ......models.interfaces import (
+    VelocityReturnModel, Data3dReturnModel
+)
+
 
 @dataclass
 class VelocityFilteringData3dReturnModel\
-    (Data3dReturnModel, VelocityReturnModel):
+    (VelocityReturnModel, Data3dReturnModel):
     pass

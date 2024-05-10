@@ -6,9 +6,16 @@ from .yt_ds_helper import YtDsHelper
 from ..models.sim_file_model import SimFileModel
 
 class YtRawDataHelper:
-    def loadRawData(self, simFile: SimFileModel, timeMyr: int, rBoxKpc: float,
-                    fields: List[Tuple[str, str]]) \
-                    -> yt.data_objects.construction_data_containers.YTCoveringGrid:
+    def loadRawData(
+        self, 
+        simFile: SimFileModel, 
+        timeMyr: int, 
+        rBoxKpc: float,
+        fields: List[Tuple[str, str]]
+    ) -> Tuple[
+        yt.data_objects.construction_data_containers.YTCoveringGrid,
+        List[int]
+    ]:
         '''
         Return:
         1. 3D raw data from hdf5 file. Type: yt.data_objects.construction_data_containers.YTCoveringGrid
@@ -31,7 +38,7 @@ class YtRawDataHelper:
         low = yt.YTArray(np.array([-rBoxKpc, -rBoxKpc, -rBoxKpc]).astype(float), "kpc")
         maxlevel = ds.max_level
         cellSizeKpc = ds.domain_width.in_units("kpc").d  / (ds.domain_dimensions * 2**maxlevel)
-        dims = np.ceil(-2*low.d / cellSizeKpc).astype(int)
+        dims: int = np.ceil(-2*low.d / cellSizeKpc).astype(int)
         cube = ds.covering_grid(maxlevel, left_edge=low, dims=dims, fields=fields)
         return (cube, list(dims))
 

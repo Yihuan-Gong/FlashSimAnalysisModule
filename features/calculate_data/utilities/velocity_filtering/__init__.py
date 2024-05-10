@@ -1,3 +1,8 @@
-from .enums import *
-from .model import *
+from .enums import VelocityFilteringMode
+from .model import (
+    VelocityFilteringCalculationInfoModel,
+    VelocityFilteringData2dReturnModel,
+    VelocityFilteringData3dReturnModel
+)
 from .velocity_filtering import VelocityFiltering
+from .....models import SimFileModel

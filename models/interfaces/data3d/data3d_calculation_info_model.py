@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Tuple
 
-from .....models.data_nd_model.data_nd_calculation_info_model import DataNdCalculationInfoModel
+from ..data_nd import DataNdCalculationInfoModel
 
 @dataclass(kw_only=True)
 class Data3dCalculationInfoModel(DataNdCalculationInfoModel):

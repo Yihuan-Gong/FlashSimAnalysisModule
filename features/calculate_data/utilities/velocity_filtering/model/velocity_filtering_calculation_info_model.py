@@ -1,7 +1,10 @@
 from dataclasses import dataclass
 
-from ......models import DataNdCalculationInfoModel
-from ......models.interfaces import CoordinateModel, VelocityFieldModel
+from ......models.interfaces import (
+    CoordinateModel, 
+    VelocityFieldModel,
+    DataNdCalculationInfoModel
+)
 
 @dataclass(kw_only=True)
 class VelocityFilteringCalculationInfoModel \

@@ -20,15 +20,16 @@ class BulkTurbVelocityFilteringStrategy\
             result.turbVx**2 + \
             result.turbVy**2 + \
             result.turbVz**2)
+        axes = DataConverter().data3dTo2dGetAxisName(axis)
         return VelocityFilteringData2dReturnModel(
             turbVx=DataConverter().data3dTo2dMiddle(result.turbVx, axis),
             turbVy=DataConverter().data3dTo2dMiddle(result.turbVy, axis),
             turbVz=DataConverter().data3dTo2dMiddle(result.turbVz, axis),
-            turbVtotal=turbVtotal,
+            turbVtotal=DataConverter().data3dTo2dMiddle(turbVtotal, axis),
             scaleCells=DataConverter().data3dTo2dMiddle(result.scaleCells, axis),
             scale=DataConverter().data3dTo2dMiddle(result.scale, axis),
-            horizontalAxis=result.xAxis,
-            verticalAxis=result.yAxis
+            horizontalAxis=(axes[0], result.xAxis),
+            verticalAxis=(axes[1], result.yAxis)
         )
         
     

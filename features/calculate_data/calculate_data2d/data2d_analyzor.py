@@ -1,4 +1,3 @@
-from .models import Data2dReturnModel
 from ..utilities.velocity_filtering import (
     VelocityFiltering, 
     VelocityFilteringCalculationInfoModel,

@@ -1,5 +1,4 @@
-from typing import TypeVar
-from astropy import units as u
+from typing import TypeVar, List
 from collections.abc import Iterable
 
 
@@ -21,3 +20,14 @@ class DataConverter:
         -> Iterable[Iterable[T]]:
         index = data3d[:][:].__len__()//2
         return self.data3dTo2d(data3d, axis, index)
+    
+    
+    def data3dTo2dGetAxisName(self, axis: str) -> List[str]:
+        '''
+        return:
+        List[0]: Horizonatal axis
+        List[1]: Vertival axis
+        '''
+        axes = ["x", "y", "z"]
+        axes.remove(axis)
+        return axes
