@@ -107,8 +107,8 @@ class BulkTurbVelocityFilteringStrategy\
             scale    = scale.transpose()
 
             # Append to turb_v_component
-            turbVelVector.append(velTurb)
-            scaleVector.append(scale)
+            turbVelVector.append(velTurb.astype('float64'))
+            scaleVector.append(scale.astype('float64'))
         
         # Convert scale into scalar from vector
         scaleScalar = np.sqrt(scaleVector[0]**2 + scaleVector[1]**2 + scaleVector[2]**2)

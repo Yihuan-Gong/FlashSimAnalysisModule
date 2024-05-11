@@ -3,5 +3,6 @@ from astropy import units as u
 
 @dataclass
 class TurbulenceHeatingVazzaReturnModel:
-    heating: u.Quantity
+    heatingPerVolume: u.Quantity
+    heatingPerMass: u.Quantity
     scale: u.Quantity

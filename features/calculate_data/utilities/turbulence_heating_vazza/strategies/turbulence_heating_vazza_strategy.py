@@ -47,17 +47,25 @@ class TurbulenceHeatingVazzaStrategy(ABC):
         )
     
     
-    def _calculateDisspationRate(
+    def _calculateHeatingPerVolume(
         self, 
-        velocity: u.Quantity, 
-        scale: u.Quantity,
+        heatingPerMass: u.Quantity,
     ) -> u.Quantity:
-        dissipationRate = (0.5*velocity**3/scale).unit.cgs
-        density = YtRawDataHelper().loadRawData(
+        density: u.Quantity = YtRawDataHelper().loadRawData(
             simFile=self._simFile,
             timeMyr=self._calculationInfo.timeMyr,
             rBoxKpc=self._calculationInfo.rBoxKpc,
             fields=[self._calculationInfo.densityFieldName]
         )[0][self._calculationInfo.densityFieldName].to_astropy()
-        return density*dissipationRate
+        result = density*heatingPerMass
+        return result.to("erg/(s*cm**3)")
+    
+    
+    def _calculateHeatingPerMass(
+        self, 
+        velocity: u.Quantity, 
+        scale: u.Quantity,
+    ) -> u.Quantity:
+        result = 0.5*velocity**3/scale
+        return result.to("erg/(s*g)")
 

@@ -18,7 +18,8 @@ class TurbVelTurbulenceHeatingVazzaStrategy(
         result3d = self.getData3d()
         axes = DataConverter().data3dTo2dGetAxisName(axis)
         return TurbulenceHeatingVazzaData2dReturnModel(
-            heating=DataConverter().data3dTo2dMiddle(result3d.heating, axis),
+            heatingPerMass=DataConverter().data3dTo2dMiddle(result3d.heatingPerMass, axis),
+            heatingPerVolume=DataConverter().data3dTo2dMiddle(result3d.heatingPerVolume, axis),
             scale=DataConverter().data3dTo2dMiddle(result3d.scale, axis),
             horizontalAxis=(axes[0], result3d.xAxis),
             verticalAxis=(axes[1], result3d.yAxis)
@@ -28,14 +29,16 @@ class TurbVelTurbulenceHeatingVazzaStrategy(
     def getData3d(self) -> TurbulenceHeatingVazzaData3dReturnModel:
         self._initVelocityFilter(self.velocityFilteringMode)
         velFilteringResult = self._velocityFilter.getData3d()
+        heatingPerMass = self._calculateHeatingPerMass(
+            velocity=velFilteringResult.turbVtotal,
+            scale=velFilteringResult.scale
+        )
         return TurbulenceHeatingVazzaData3dReturnModel(
             xAxis=velFilteringResult.xAxis,
             yAxis=velFilteringResult.yAxis,
             zAxis=velFilteringResult.zAxis,
-            heating=self._calculateDisspationRate(
-                velocity=velFilteringResult.turbVtotal,
-                scale=velFilteringResult.scale
-            ),
+            heatingPerMass=heatingPerMass,
+            heatingPerVolume=self._calculateHeatingPerVolume(heatingPerMass),
             scale=velFilteringResult.scale
         )
         
