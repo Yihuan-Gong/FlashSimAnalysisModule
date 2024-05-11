@@ -7,4 +7,8 @@ from ..utilities.velocity_filtering import (
     VelocityFilteringMode,
     VelocityFilteringData2dReturnModel
 )
+from .methods.los_vel_dispersion import (
+    LosDispersionCalculationInfoModel,
+    LosVelDispersionData2dReturnModel
+)
 from .data2d_analyzor import *

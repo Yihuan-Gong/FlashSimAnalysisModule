@@ -10,6 +10,11 @@ from ..utilities.turbulence_heating_vazza import (
     TurbulenceHeatingVazzaData2dReturnModel,
     TurbulenceHeatingVazzaMode
 )
+from .methods.los_vel_dispersion import (
+    LosVelDispersion,
+    LosDispersionCalculationInfoModel,
+    LosVelDispersionData2dReturnModel
+)
 from ....models import SimFileModel
 
 
@@ -35,3 +40,13 @@ class Data2dAnalyzor:
     ) -> TurbulenceHeatingVazzaData2dReturnModel:
         return TurbulenceHeatingVazza()\
             .setInputs(mode, simFile, calculationInfo).getData2d(axis)
+            
+    
+    def losVelDispersion(
+        self,
+        axis: str,
+        simFile: SimFileModel,
+        calculationInfo: LosDispersionCalculationInfoModel
+    ) -> LosVelDispersionData2dReturnModel: 
+        return LosVelDispersion()\
+            .setInputs(simFile, calculationInfo).getData2d(axis)
