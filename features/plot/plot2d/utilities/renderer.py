@@ -1,0 +1,46 @@
+from typing import Tuple
+from matplotlib.figure import Figure
+from matplotlib.colors import LogNorm
+import matplotlib.pyplot as plt
+from astropy import units as u
+import numpy as np
+
+from ..models import Plot2dInfoModel
+from .....models.interfaces import Data2dAxisReturnModel
+
+class Renderer:
+    
+    def renderPlot(
+        self, 
+        value2d: u.Quantity,
+        axis: Data2dAxisReturnModel, 
+        plotInfo: Plot2dInfoModel,
+    ) -> Tuple[Figure, plt.Axes]:
+        if (plotInfo.fig == None or plotInfo.ax == None):
+            plotInfo.fig, plotInfo.ax = plt.subplots()
+        
+        axisUnit = axis.horizontalAxis[1].unit.to_string()
+        valueUnit = value2d.unit.to_string()
+        
+        # Render value2d to the image (image belongs to ax)
+        image = plotInfo.ax.imshow(
+            np.flipud(value2d.value), 
+            extent=[
+                axis.horizontalAxis[1].value[0], axis.horizontalAxis[1].value[-1],
+                axis.verticalAxis[1].value[0], axis.verticalAxis[1].value[-1],
+            ],
+            vmax=None if plotInfo.isLog else plotInfo.zlimMax,
+            vmin=None if plotInfo.isLog else plotInfo.zlimMin,
+            cmap=plotInfo.color,
+            norm=LogNorm(plotInfo.zlimMin, plotInfo.zlimMax) \
+                if plotInfo.isLog else None
+        )
+
+        # Add colorbar to ax
+        cbar = plotInfo.fig.colorbar(image, ax=plotInfo.ax)
+        cbar.set_label(f"{valueUnit}")
+
+        plotInfo.ax.set_title(f"{plotInfo.title}")
+        plotInfo.ax.set_xlabel(f"{axis.horizontalAxis[0]} ({axisUnit})")
+        plotInfo.ax.set_ylabel(f"{axis.verticalAxis[0]} ({axisUnit})")
+        return plotInfo.fig, plotInfo.ax

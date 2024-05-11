@@ -1,0 +1,1 @@
+from .plot2d_info_model import Plot2dInfoModel

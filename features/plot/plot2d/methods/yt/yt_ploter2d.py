@@ -3,10 +3,9 @@ import yt
 import numpy as np
 import os
 
-from .ploter2d import Ploter2D
-from .....utility.field_adder import FieldAdder
-from .....enum import YtPloter2DMode
-from .....services.yt_ds_helper import YtDsHelper
+from ......utility.field_adder import FieldAdder
+from ......enum import YtPloter2DMode
+from ......services.yt_ds_helper import YtDsHelper
 
 class YtPloter2D(Ploter2D):
     __plot: any = None

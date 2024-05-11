@@ -1,12 +1,11 @@
 from typing import List, Tuple
 import yt
 
-from .plot2d_info_model import Plot2dInfoModel
 from ..enums.yt_ploter2d_mode import YtPloter2DMode
 from dataclasses import dataclass
 
 @dataclass
-class YtPlot2dInfoModel(Plot2dInfoModel):
+class YtPlot2dInfoModel:
     plotMode: YtPloter2DMode
     field: Tuple[str, str]
     center: yt.YTArray = yt.YTArray([0,0,0], "kpc")
