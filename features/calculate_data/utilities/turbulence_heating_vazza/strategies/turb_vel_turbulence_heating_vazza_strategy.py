@@ -27,13 +27,17 @@ class TurbVelTurbulenceHeatingVazzaStrategy(
     
     
     def getData3d(self) -> TurbulenceHeatingVazzaData3dReturnModel:
+        result = self._pickleService.readFromFile()
+        if (result != None):
+            return result
+        
         self._initVelocityFilter(self.velocityFilteringMode)
         velFilteringResult = self._velocityFilter.getData3d()
         heatingPerMass = self._calculateHeatingPerMass(
             velocity=velFilteringResult.turbVtotal,
             scale=velFilteringResult.scale
         )
-        return TurbulenceHeatingVazzaData3dReturnModel(
+        result = TurbulenceHeatingVazzaData3dReturnModel(
             xAxis=velFilteringResult.xAxis,
             yAxis=velFilteringResult.yAxis,
             zAxis=velFilteringResult.zAxis,
@@ -41,6 +45,8 @@ class TurbVelTurbulenceHeatingVazzaStrategy(
             heatingPerVolume=self._calculateHeatingPerVolume(heatingPerMass),
             scale=velFilteringResult.scale
         )
+        self._pickleService.saveIntoFile(result)
+        return result
         
         
     

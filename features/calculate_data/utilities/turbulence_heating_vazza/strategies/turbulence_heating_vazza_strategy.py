@@ -11,13 +11,14 @@ from ...velocity_filtering import (
     VelocityFilteringMode
 ) 
 from ......models import SimFileModel
-from ......services import YtRawDataHelper
+from ......services import YtRawDataHelper, PickleService
 
 
 class TurbulenceHeatingVazzaStrategy(ABC):
     _simFile: SimFileModel
     _calculationInfo: TurbulenceHeatingVazzaCalculationInfoModel
     _velocityFilter: VelocityFiltering
+    _pickleService: PickleService
     
     def setInputs(
         self,
@@ -26,6 +27,12 @@ class TurbulenceHeatingVazzaStrategy(ABC):
     ):
         self._calculationInfo = calculationInfo
         self._simFile = simFile
+        self._pickleService = PickleService(
+            simPath=simFile.simPath,
+            prefix=self.__class__.__name__,
+            timeMyr=calculationInfo.timeMyr,
+            rBoxKpc=calculationInfo.rBoxKpc
+        )
         return self
     
     

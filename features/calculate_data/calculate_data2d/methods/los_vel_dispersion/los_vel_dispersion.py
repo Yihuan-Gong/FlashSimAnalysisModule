@@ -7,7 +7,7 @@ from .models import (
     LosVelDispersionData2dReturnModel
 )
 from ......utility import FieldAdder, CellCoorCalculator
-from ......services.yt_raw_data_helper import YtRawDataHelper
+from ......services import YtRawDataHelper, PickleService
 from ......models import SimFileModel
 
 class LosVelDispersion:
@@ -15,6 +15,7 @@ class LosVelDispersion:
     __calculationInfo: LosDispersionCalculationInfoModel
     __velocityFieldDict: Dict[str, str]
     __xrayFieldName: Tuple[str, str]
+    __pickleService: PickleService
 
 
     def __init__(self) -> None:
@@ -34,10 +35,20 @@ class LosVelDispersion:
             "y": calculationInfo.velyFieldName,
             "z": calculationInfo.velzFieldName
         }
+        self.__pickleService = PickleService(
+            simPath=simFile.simPath,
+            prefix=self.__class__.__name__,
+            timeMyr=calculationInfo.timeMyr,
+            rBoxKpc=calculationInfo.rBoxKpc
+        )
         return self
     
     
     def getData2d(self, axis: str) -> LosVelDispersionData2dReturnModel:
+        result = self.__pickleService.readFromFile()
+        if (result != None):
+            return result
+        
         (cube, cubeDims) = self.__getRawDataCube(axis)
         velocityRawDataCube = cube[self.__velocityFieldDict[axis]].to_astropy() # is np.array
         xrayRawDataCube = cube[self.__xrayFieldName].to_astropy() # is np.array
@@ -58,11 +69,13 @@ class LosVelDispersion:
         )
         axes = ["x", "y", "z"]
         axes.remove(axis)
-        return LosVelDispersionData2dReturnModel(
+        result = LosVelDispersionData2dReturnModel(
             value=losVelDispersionMap.transpose()*velocityRawDataCube.unit,
             horizontalAxis=(axes[0], axisCoorKpc),
             verticalAxis=(axes[1], axisCoorKpc),
         )
+        self.__pickleService.saveIntoFile(result)
+        return result
 
 
     def __calculateLosVelDispersion(

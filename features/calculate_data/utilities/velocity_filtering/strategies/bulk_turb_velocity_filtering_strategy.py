@@ -8,7 +8,7 @@ from ..model import (
     VelocityFilteringData2dReturnModel,
     VelocityFilteringData3dReturnModel
 )
-from ......services.yt_raw_data_helper import YtRawDataHelper
+from ......services import YtRawDataHelper
 from ......utility import DataConverter
 
 class BulkTurbVelocityFilteringStrategy\
@@ -34,6 +34,10 @@ class BulkTurbVelocityFilteringStrategy\
         
     
     def getData3d(self) -> VelocityFilteringData3dReturnModel:
+        result = self._pickleService.readFromFile()
+        if (result != None):
+            return result
+        
         (self._cube, self._cubeDims) = self.__getRawDataCube()
         (turbVelVector, scaleScalar) = self.__idlBridgeVelocityFiltering()
         turbVtotal: np.ndarray = np.sqrt(\
@@ -44,7 +48,7 @@ class BulkTurbVelocityFilteringStrategy\
         cellCoor: u.Quantity = (self._cube[self._calculationInfo.cellCoorField]\
             .in_units(self._calculationInfo.cellCoorUnit))[:,0,0].to_astropy()
         cellSize: u.Quantity = cellCoor[1] - cellCoor[0]
-        return VelocityFilteringData3dReturnModel(
+        result = VelocityFilteringData3dReturnModel(
             xAxis=cellCoor,
             yAxis=cellCoor,
             zAxis=cellCoor,
@@ -55,6 +59,8 @@ class BulkTurbVelocityFilteringStrategy\
             scaleCells=scaleScalar,
             scale=scaleScalar*cellSize
         )
+        self._pickleService.saveIntoFile(result)
+        return result
     
     
     def __getRawDataCube(self):
@@ -161,4 +167,6 @@ class BulkTurbVelocityFilteringStrategy\
                 sc1=sc   &\
             endfor   \
         "
-        
+    
+    
+    
