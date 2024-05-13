@@ -10,6 +10,11 @@ from .methods.turbulence_heating import (
     TurbulenceHeatingTimeSeriesReturnModel
     
 )
+from .methods.turbulence_heating_vazza import (
+    TurbulenceHeatingVazzaData1d,
+    TurbulenceHeatingVazzaMode,
+    TurbulenceHeatingVazzaTimeSeriesCalculationInfoModel
+)
 from .methods.yt import (
     YtData1d,
     YtProfileCalculationInfoModel,
@@ -52,6 +57,19 @@ class Data1dAnalyzor:
         calculationInfo: TurbulenceHeatingTimeSeriesCalculationInfoModel
     ) -> TurbulenceHeatingTimeSeriesReturnModel:
         return TurbulenceHeatingData1d().getTimeSeriesData(
+            simFile=simFile,
+            calculationInfo=calculationInfo
+        )
+    
+    
+    def turbulenceHeatingVazzaTimeSeries(
+        self,
+        mode: TurbulenceHeatingVazzaMode,
+        simFile: SimFileModel,
+        calculationInfo: TurbulenceHeatingVazzaTimeSeriesCalculationInfoModel
+    ) -> TimeSeriesReturnModel:
+        return TurbulenceHeatingVazzaData1d().getTimeSeries(
+            mode=mode,
             simFile=simFile,
             calculationInfo=calculationInfo
         )

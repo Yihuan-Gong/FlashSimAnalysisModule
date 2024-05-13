@@ -57,6 +57,25 @@ class Plot1d:
     
     
     
+    def turbulenceHeatingVazzaTimeSeries(
+        self,
+        mode: TurbulenceHeatingVazzaMode,
+        simFile: SimFileModel,
+        calculationInfo: TurbulenceHeatingVazzaTimeSeriesCalculationInfoModel,
+        plotInfo: Plot1dInfoModel
+    ) -> Tuple[plt.Figure, plt.Axes]:
+        data = Data1dAnalyzor().turbulenceHeatingVazzaTimeSeries(
+            mode=mode,
+            simFile=simFile,
+            calculationInfo=calculationInfo
+        )
+        return Plot1dRenderer().renderTimeSeriesPlot(
+            data=data,
+            plotInfo=plotInfo
+        )
+    
+    
+    
     def ytProfile(
         self,
         simFile: SimFileModel,

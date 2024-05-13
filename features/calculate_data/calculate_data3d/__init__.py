@@ -1,5 +1,6 @@
 from ..utilities.turbulence_heating_vazza import (
     TurbulenceHeatingVazzaMode,
+    TurbulenceHeatingVazzaCalculationInfoModel,
     TurbulenceHeatingVazzaData3dReturnModel
 )
 from ..utilities.velocity_filtering import (
@@ -8,3 +9,4 @@ from ..utilities.velocity_filtering import (
     VelocityFilteringData3dReturnModel
 )
 from .data3d_analyzor import Data3dAnalyzor
+from ....models import SimFileModel

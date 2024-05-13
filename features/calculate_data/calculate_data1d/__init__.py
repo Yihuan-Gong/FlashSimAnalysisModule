@@ -7,6 +7,10 @@ from .methods.turbulence_heating import (
     TurbulenceHeatingProfileReturnModel,
     TurbulenceHeatingTimeSeriesReturnModel
 )
+from .methods.turbulence_heating_vazza import (
+    TurbulenceHeatingVazzaTimeSeriesCalculationInfoModel,
+    TurbulenceHeatingVazzaMode
+)
 from .methods.yt import (
     YtProfileCalculationInfoModel,
     YtTimeSeriesCalculationInfoModel,

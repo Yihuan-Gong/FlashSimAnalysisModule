@@ -7,6 +7,8 @@ from ....models import SimFileModel
 from ...calculate_data.calculate_data1d import (
     TurbulenceHeatingProfileCalculationInfoModel,
     TurbulenceHeatingTimeSeriesCalculationInfoModel,
+    TurbulenceHeatingVazzaTimeSeriesCalculationInfoModel,
+    TurbulenceHeatingVazzaMode,
     YtProfileCalculationInfoModel,
     YtTimeSeriesCalculationInfoModel,
     JetPowerTimeSeriesCalculationInfoModel

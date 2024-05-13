@@ -14,7 +14,7 @@ from ...models import (
 )
 from ......models import SimFileModel
 from ......data_base import PandasHelper, DbModel
-from ......services import YtDsHelper
+from ......services import YtDsHelper, AstropyService
 from ......utility import FieldAdder
 
 
@@ -43,7 +43,7 @@ class YtData1d:
             rKpc=calculationInfo.rKpc,
             shape=calculationInfo.shape,
             timeMyrList=calculationInfo.getTimeList(),
-            yValue=self.__quantityListToQuantity(result)
+            yValue=AstropyService().quantityListToQuantity(result)
         )
     
     
@@ -64,7 +64,7 @@ class YtData1d:
             timeMyr=calculationInfo.tMyr,
             shape=calculationInfo.shape,
             rKpcList=calculationInfo.getRList(),
-            yValue=self.__quantityListToQuantity(result)
+            yValue=AstropyService().quantityListToQuantity(result)
         )
         
     
@@ -137,8 +137,5 @@ class YtData1d:
         del region
         return value
     
-    
-    def __quantityListToQuantity(self, quantityList: List[u.Quantity]):
-        return np.array([q.value for q in  quantityList])*quantityList[0].unit
         
     
