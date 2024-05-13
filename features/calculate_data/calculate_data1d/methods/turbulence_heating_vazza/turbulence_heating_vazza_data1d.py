@@ -76,7 +76,7 @@ class TurbulenceHeatingVazzaData1d:
             calculationInfo=calcInfo3d
         )
         heatingRate: u.Quantity = (data3d.heatingPerVolume.mean()*\
-            (calcInfo3d.rBoxKpc*u.Unit("kpc"))**3).to("erg/s")
+            (2.*calcInfo3d.rBoxKpc*u.Unit("kpc"))**3).to("erg/s")
         
         PandasHelper().writeDataIntoCsv(
             simBasePath=simFile.simPath,
