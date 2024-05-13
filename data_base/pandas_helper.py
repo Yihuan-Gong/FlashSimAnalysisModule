@@ -10,14 +10,15 @@ from ..enum.shape import Shape
 '''
 class PandasHelper():
 
-    def writeDataIntoCsv(self, simBasePath : str, field : str, shape: Shape, dbModelList: List[DbModel]):
+    def writeDataIntoCsv(self, simBasePath : str, fieldName : str, shape: Shape, dbModelList: List[DbModel]):
         dfs = [self.__dbModelToDataFrame(dbModel) for dbModel in dbModelList]
         newDf = pd.concat(dfs, ignore_index=True)
         
-        filePath = self.__getFilePath(simBasePath, field, shape)
+        filePath = self.__getFilePath(simBasePath, fieldName, shape)
         if (os.path.exists(filePath)):
             df = pd.read_csv(filePath)
-            df = df.append(newDf, ignore_index=True)
+            # df = df.append(newDf, ignore_index=True)
+            df = pd.concat([df, newDf], ignore_index=True)
         else:
             self.__createCsvDir(simBasePath)
             df = newDf
@@ -39,23 +40,22 @@ class PandasHelper():
             # return resultRow['value'].to_list()[0]
 
     
-    def resetDataBase(self, simBasePath : str, field : str, shape: Shape):
-        filePath = self.__getFilePath(simBasePath, field, shape)
+    def resetDataBase(self, simBasePath : str, fieldName : str, shape: Shape):
+        filePath = self.__getFilePath(simBasePath, fieldName, shape)
         if (not os.path.exists(filePath)):
             return
         os.remove(filePath)
 
 
-    def __getData(self, simBasePath: str, field: str, shape: Shape, rKpc: float, tMyr: float) -> pd.DataFrame:
-        filePath = self.__getFilePath(simBasePath, field, shape)
+    def __getData(self, simBasePath: str, fieldName: str, shape: Shape, rKpc: float, tMyr: float) -> pd.DataFrame:
+        filePath = self.__getFilePath(simBasePath, fieldName, shape)
         if (not os.path.exists(filePath)):
             return None
         df = pd.read_csv(filePath)
         return df[(df['rKpc'] == rKpc) & (df['tMyr'] == tMyr)]
         
 
-    def __getFilePath(self, simBasePath : str, field : str, shape: Shape):
-        fieldName = f"{field}".split(".")[-1]
+    def __getFilePath(self, simBasePath : str, fieldName : str, shape: Shape):
         shapeName = f"{shape}".split(".")[-1]
         return f"{simBasePath}/Csv/{fieldName}_{shapeName}.csv"
     

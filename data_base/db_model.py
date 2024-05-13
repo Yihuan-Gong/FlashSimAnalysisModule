@@ -5,3 +5,4 @@ class DbModel:
     rKpc : float
     tMyr : float
     value: object
+    valueUnit: str
