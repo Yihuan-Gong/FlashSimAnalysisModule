@@ -42,6 +42,7 @@ class Plot2d:
             calculationInfo=calculationInfo
         )
         return Renderer().renderPlot(
+            timeMyr=calculationInfo.timeMyr,
             value2d=result.value,
             axis=result,
             plotInfo=plotInfo
@@ -63,6 +64,7 @@ class Plot2d:
             calculationInfo=calculationInfo
         )
         return Renderer().renderPlot(
+            timeMyr=calculationInfo.timeMyr,
             value2d=result.heatingPerVolume.to("erg/(s*kpc**3)"),
             axis=result,
             plotInfo=plotInfo

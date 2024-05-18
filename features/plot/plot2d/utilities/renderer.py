@@ -12,6 +12,7 @@ class Renderer:
     
     def renderPlot(
         self, 
+        timeMyr: float,
         value2d: u.Quantity,
         axis: Data2dAxisReturnModel, 
         plotInfo: Plot2dInfoModel,
@@ -40,6 +41,18 @@ class Renderer:
         cbar = plotInfo.fig.colorbar(image, ax=plotInfo.ax)
         cbar.set_label(f"{valueUnit}")
 
+        # Time indication on the upper left
+        if (plotInfo.showTimeInfo):
+            imgaeXcoorPercent = -42
+            imageYcoorPercent = 42
+            plotInfo.ax.text(
+                image.get_shape()[0]*imgaeXcoorPercent/100, 
+                image.get_shape()[1]*imageYcoorPercent/100, 
+                f"time = {timeMyr}Myr", 
+                color='black', 
+                fontsize=10
+            )
+        
         plotInfo.ax.set_title(f"{plotInfo.title}")
         plotInfo.ax.set_xlabel(f"{axis.horizontalAxis[0]} ({axisUnit})")
         plotInfo.ax.set_ylabel(f"{axis.verticalAxis[0]} ({axisUnit})")

@@ -9,5 +9,6 @@ class Plot2dInfoModel:
     color: str = "viridis"
     zlimMin: float = None
     zlimMax: float = None
+    showTimeInfo: bool = True
     fig: plt.Figure = None
     ax: plt.Axes = None

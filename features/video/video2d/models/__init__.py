@@ -1,0 +1,1 @@
+from .video2d_info_model import Video2dInfoModel

@@ -41,6 +41,7 @@ class VelocityFilteringPlot2d:
             calculationInfo=calculationInfo
         )
         return Renderer().renderPlot(
+            timeMyr=calculationInfo.timeMyr,
             value2d=getattr(result, f"{field}".split(".")[-1]),
             axis=result,
             plotInfo=plotInfo
