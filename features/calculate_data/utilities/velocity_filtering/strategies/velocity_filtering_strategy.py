@@ -9,7 +9,7 @@ from ..model import (
     VelocityFilteringData3dReturnModel
 )
 from ......models import SimFileModel
-from ......services import PickleService
+from ......services import PickleService, YtRawDataHelper
 
 class VelocityFilteringStrategy(ABC):
     _simFile: SimFileModel
@@ -42,3 +42,16 @@ class VelocityFilteringStrategy(ABC):
     
     def _calculateTotalVelocity(self, velx: u.Quantity, vely: u.Quantity, velz: u.Quantity):
         return np.sqrt(velx**2+vely**2+velz**2)
+    
+    
+    def _getVelocityRawDataCube(self):
+        return YtRawDataHelper().loadRawData(
+            simFile=self._simFile,
+            timeMyr=self._calculationInfo.timeMyr,
+            rBoxKpc=self._calculationInfo.rBoxKpc,
+            fields=[
+                self._calculationInfo.velxFieldName,
+                self._calculationInfo.velyFieldName,
+                self._calculationInfo.velzFieldName
+            ]
+        )

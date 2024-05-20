@@ -70,7 +70,7 @@ class LosVelDispersion:
         axes = ["x", "y", "z"]
         axes.remove(axis)
         result = LosVelDispersionData2dReturnModel(
-            value=losVelDispersionMap.transpose()*velocityRawDataCube.unit,
+            value=losVelDispersionMap*velocityRawDataCube.unit,
             horizontalAxis=(axes[0], axisCoorKpc),
             verticalAxis=(axes[1], axisCoorKpc),
         )

@@ -35,17 +35,16 @@ class CompSoleVelocityFilteringStrategy\
         if (result != None):
             return result
         
-        (self._cube, self._cubeDims) = self.__getRawDataCube()
+        (self._cube, self._cubeDims) = self._getVelocityRawDataCube()
         velx = self._cube[self._calculationInfo.velxFieldName].to_astropy()
         vely = self._cube[self._calculationInfo.velyFieldName].to_astropy()
         velz = self._cube[self._calculationInfo.velzFieldName].to_astropy()
-        dens = self._cube[self._calculationInfo.densityFieldName].to_astropy()
         cellCoor: u.Quantity = CellCoorCalculator().getAxisCoor(
             simFile=self._simFile, calculationInfo=self._calculationInfo
         )
         cellSize: u.Quantity = cellCoor[1] - cellCoor[0]
         
-        compSoleFilter = CompSoleFilter3d(velx, vely, velz, dens, cellSize)
+        compSoleFilter = CompSoleFilter3d(velx, vely, velz, cellSize)
         compSoleFilter.filter()
         result = VelocityFilteringData3dReturnModel(
             xAxis=cellCoor,
@@ -71,17 +70,4 @@ class CompSoleVelocityFilteringStrategy\
         self._pickleService.saveIntoFile(result)
         return result
         
-    
-    def __getRawDataCube(self):
-        return YtRawDataHelper().loadRawData(
-            simFile=self._simFile,
-            timeMyr=self._calculationInfo.timeMyr,
-            rBoxKpc=self._calculationInfo.rBoxKpc,
-            fields=[
-                self._calculationInfo.velxFieldName,
-                self._calculationInfo.velyFieldName,
-                self._calculationInfo.velzFieldName,
-                self._calculationInfo.densityFieldName
-            ]
-        )
     

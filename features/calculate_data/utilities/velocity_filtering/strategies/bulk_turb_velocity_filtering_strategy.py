@@ -9,7 +9,7 @@ from ..model import (
     VelocityFilteringData3dReturnModel
 )
 from ......services import YtRawDataHelper
-from ......utility import DataConverter
+from ......utility import DataConverter, CellCoorCalculator
 
 class BulkTurbVelocityFilteringStrategy\
     (VelocityFilteringStrategy):
@@ -36,15 +36,16 @@ class BulkTurbVelocityFilteringStrategy\
         if (result != None):
             return result
         
-        (self._cube, self._cubeDims) = self.__getRawDataCube()
+        (self._cube, self._cubeDims) = self._getVelocityRawDataCube()
         (turbVelVector, scaleScalar) = self.__idlBridgeVelocityFiltering()
         turbVtotal: np.ndarray = np.sqrt(\
             turbVelVector[0]**2 + \
             turbVelVector[1]**2 + \
             turbVelVector[1]**2
         )
-        cellCoor: u.Quantity = (self._cube[self._calculationInfo.cellCoorField]\
-            .in_units(self._calculationInfo.cellCoorUnit))[:,0,0].to_astropy()
+        cellCoor: u.Quantity = CellCoorCalculator().getAxisCoor(
+            simFile=self._simFile, calculationInfo=self._calculationInfo
+        )
         cellSize: u.Quantity = cellCoor[1] - cellCoor[0]
         result = VelocityFilteringData3dReturnModel(
             xAxis=cellCoor,
@@ -59,21 +60,6 @@ class BulkTurbVelocityFilteringStrategy\
         )
         self._pickleService.saveIntoFile(result)
         return result
-    
-    
-    def __getRawDataCube(self):
-        cube = YtRawDataHelper().loadRawData(
-            simFile=self._simFile,
-            timeMyr=self._calculationInfo.timeMyr,
-            rBoxKpc=self._calculationInfo.rBoxKpc,
-            fields=[
-                self._calculationInfo.velxFieldName,
-                self._calculationInfo.velyFieldName,
-                self._calculationInfo.velzFieldName,
-                self._calculationInfo.cellCoorField,
-            ]
-        )
-        return cube
     
     
     def __idlBridgeVelocityFiltering(self) \
@@ -107,10 +93,6 @@ class BulkTurbVelocityFilteringStrategy\
             velTurb = idl.getVariable('turbo')
             scale    = idl.getVariable('scale')
 
-            # Convert to python format
-            velTurb = velTurb.transpose()
-            scale    = scale.transpose()
-
             # Append to turb_v_component
             turbVelVector.append(velTurb)
             scaleVector.append(scale)
@@ -121,7 +103,6 @@ class BulkTurbVelocityFilteringStrategy\
     
     
     def __getIdlFormatFieldValue(self, fieldName) -> np.ndarray:
-        # return self._cube[fieldName].d.astype('float32')
         return self._cube[fieldName].d
     
     

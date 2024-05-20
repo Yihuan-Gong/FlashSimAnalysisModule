@@ -25,4 +25,4 @@ class VelocityReturnModel:
     turbSoleVx: u.Quantity = None
     turbSoleVy: u.Quantity = None
     turbSoleVz: u.Quantity = None
-    turbSoleVtotal = u.Quantity = None
+    turbSoleVtotal: u.Quantity = None

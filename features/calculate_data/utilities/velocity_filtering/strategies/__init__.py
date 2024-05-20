@@ -1,3 +1,4 @@
 from .velocity_filtering_strategy import VelocityFilteringStrategy
 from .bulk_turb_velocity_filtering_strategy import BulkTurbVelocityFilteringStrategy
 from .comp_sole_velocity_filtering_strategy import CompSoleVelocityFilteringStrategy
+from .turb_comp_sole_velocity_filtering_strategy import TurbCompSoleVelocityFilteringStrategy

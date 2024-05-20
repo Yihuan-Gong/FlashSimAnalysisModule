@@ -25,7 +25,7 @@ class Renderer:
         
         # Render value2d to the image (image belongs to ax)
         image = plotInfo.ax.imshow(
-            np.flipud(value2d.value), 
+            np.flipud(value2d.value.transpose()), 
             extent=[
                 axis.horizontalAxis[1].value[0], axis.horizontalAxis[1].value[-1],
                 axis.verticalAxis[1].value[0], axis.verticalAxis[1].value[-1],

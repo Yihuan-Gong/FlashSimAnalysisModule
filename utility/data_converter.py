@@ -9,11 +9,11 @@ class DataConverter:
         -> Iterable[Iterable[T]]:
         match axis:
             case "x":
-                return data3d[index][:][:]
+                return data3d[index,:,:]
             case "y":
-                return data3d[:][index][:]
+                return data3d[:,index,:]
             case "z":
-                return data3d[:][:][index]
+                return data3d[:,:,index]
 
     
     def data3dTo2dMiddle(self, data3d: Iterable[Iterable[Iterable[T]]], axis: str) \
