@@ -1,5 +1,7 @@
 import yt
 from abc import ABC, abstractmethod
+from astropy import units as u
+import numpy as np
 
 from ..model import (
     VelocityFilteringCalculationInfoModel,
@@ -12,7 +14,7 @@ from ......services import PickleService
 class VelocityFilteringStrategy(ABC):
     _simFile: SimFileModel
     _calculationInfo: VelocityFilteringCalculationInfoModel
-    _cube: yt.data_objects.construction_data_containers.YTCoveringGrid
+    _cube: any
     _cubeDims: int
     _pickleService: PickleService
     
@@ -36,4 +38,7 @@ class VelocityFilteringStrategy(ABC):
     def getData2d(self, axis: str) \
         -> VelocityFilteringData2dReturnModel:
         pass
-        
+    
+    
+    def _calculateTotalVelocity(self, velx: u.Quantity, vely: u.Quantity, velz: u.Quantity):
+        return np.sqrt(velx**2+vely**2+velz**2)

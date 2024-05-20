@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Tuple
 
 from ......models.interfaces import (
     CoordinateModel, 
@@ -12,4 +13,5 @@ class VelocityFilteringCalculationInfoModel \
     bulkTurbFilteringMinScale: int = 4
     bulkTurbFilteringMaxScale: int = None
     bulkTurbFilteringEps: float = 0.1
+    densityFieldName: Tuple[str, str] = ("gas", "density")
     pass

@@ -7,4 +7,4 @@ from ...velocity_filtering import VelocityFilteringCalculationInfoModel
 class TurbulenceHeatingVazzaCalculationInfoModel(
     VelocityFilteringCalculationInfoModel
 ):
-    densityFieldName: Tuple[str, str] = ("gas", "density")
+    pass

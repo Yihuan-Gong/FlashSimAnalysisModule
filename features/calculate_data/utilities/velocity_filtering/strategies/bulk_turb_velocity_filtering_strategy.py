@@ -16,10 +16,8 @@ class BulkTurbVelocityFilteringStrategy\
     
     def getData2d(self, axis: str) -> VelocityFilteringData2dReturnModel:
         result = self.getData3d()
-        turbVtotal: u.Quantity = np.sqrt(\
-            result.turbVx**2 + \
-            result.turbVy**2 + \
-            result.turbVz**2)
+        turbVtotal: u.Quantity = self._calculateTotalVelocity(
+            result.turbVx, result.turbVy, result.turbVz)
         axes = DataConverter().data3dTo2dGetAxisName(axis)
         return VelocityFilteringData2dReturnModel(
             turbVx=DataConverter().data3dTo2dMiddle(result.turbVx, axis),
@@ -99,7 +97,8 @@ class BulkTurbVelocityFilteringStrategy\
                 # Reshape to 3D array
                 idl.setVariable('vel1D', velFlat)
                  # Run IDL filering script
-                idl.execute("vel = reform(vel1D, n, n, n)")
+                # idl.execute("vel = reform(vel1D, n, n, n)")
+                idl.execute("vel = vel1D")
                 idl.execute(self.__getIdlCode())
             except idl.IdlArithmeticError:
                 pass
@@ -113,8 +112,8 @@ class BulkTurbVelocityFilteringStrategy\
             scale    = scale.transpose()
 
             # Append to turb_v_component
-            turbVelVector.append(velTurb.astype('float64'))
-            scaleVector.append(scale.astype('float64'))
+            turbVelVector.append(velTurb)
+            scaleVector.append(scale)
         
         # Convert scale into scalar from vector
         scaleScalar = np.sqrt(scaleVector[0]**2 + scaleVector[1]**2 + scaleVector[2]**2)
@@ -122,7 +121,8 @@ class BulkTurbVelocityFilteringStrategy\
     
     
     def __getIdlFormatFieldValue(self, fieldName) -> np.ndarray:
-        return self._cube[fieldName].d.astype('float32')
+        # return self._cube[fieldName].d.astype('float32')
+        return self._cube[fieldName].d
     
     
     def __getIdlCode(self):

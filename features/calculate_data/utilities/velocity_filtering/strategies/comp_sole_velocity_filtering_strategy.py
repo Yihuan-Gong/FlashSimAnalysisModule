@@ -1,14 +1,87 @@
-from typing import Tuple, List
-import yt
-import mirpyidl as idl
-import numpy as np
+from astropy import units as u
 
 from .velocity_filtering_strategy import VelocityFilteringStrategy
-from ..model import CompSoleVelocityFilteringData3dReturnModel
-from ....models.data3d_return_model import Data3dReturnModel
-from .......services.yt_raw_data_helper import YtRawDataHelper
+from ..model import (
+    VelocityFilteringData2dReturnModel,
+    VelocityFilteringData3dReturnModel
+)
+from ..utilities import CompSoleFilter3d
+from ......services import YtRawDataHelper
+from ......utility import DataConverter, CellCoorCalculator
 
-class CompSoleVelocityFilteringData3dStrategy\
+
+class CompSoleVelocityFilteringStrategy\
     (VelocityFilteringStrategy):
-    def getData(self) -> Data3dReturnModel:
-        return super().getData()
+    
+    def getData2d(self, axis: str) -> VelocityFilteringData2dReturnModel:
+        result = self.getData3d()
+        axes = DataConverter().data3dTo2dGetAxisName(axis)
+        return VelocityFilteringData2dReturnModel(
+            horizontalAxis=(axes[0], result.xAxis),
+            verticalAxis=(axes[1], result.yAxis),
+            compVx=DataConverter().data3dTo2dMiddle(result.compVx, axis),
+            compVy=DataConverter().data3dTo2dMiddle(result.compVy, axis),
+            compVz=DataConverter().data3dTo2dMiddle(result.compVz, axis),
+            compVtotal=DataConverter().data3dTo2dMiddle(result.compVtotal, axis),
+            soleVx=DataConverter().data3dTo2dMiddle(result.soleVx, axis),
+            soleVy=DataConverter().data3dTo2dMiddle(result.soleVy, axis),
+            soleVz=DataConverter().data3dTo2dMiddle(result.soleVz, axis),
+            soleVtotal=DataConverter().data3dTo2dMiddle(result.soleVtotal, axis)
+        )
+    
+    
+    def getData3d(self) -> VelocityFilteringData3dReturnModel:
+        result = self._pickleService.readFromFile()
+        if (result != None):
+            return result
+        
+        (self._cube, self._cubeDims) = self.__getRawDataCube()
+        velx = self._cube[self._calculationInfo.velxFieldName].to_astropy()
+        vely = self._cube[self._calculationInfo.velyFieldName].to_astropy()
+        velz = self._cube[self._calculationInfo.velzFieldName].to_astropy()
+        dens = self._cube[self._calculationInfo.densityFieldName].to_astropy()
+        cellCoor: u.Quantity = CellCoorCalculator().getAxisCoor(
+            simFile=self._simFile, calculationInfo=self._calculationInfo
+        )
+        cellSize: u.Quantity = cellCoor[1] - cellCoor[0]
+        
+        compSoleFilter = CompSoleFilter3d(velx, vely, velz, dens, cellSize)
+        compSoleFilter.filter()
+        result = VelocityFilteringData3dReturnModel(
+            xAxis=cellCoor,
+            yAxis=cellCoor,
+            zAxis=cellCoor,
+            compVx=compSoleFilter.velxComp,
+            compVy=compSoleFilter.velyComp,
+            compVz=compSoleFilter.velzComp,
+            compVtotal=self._calculateTotalVelocity(
+                compSoleFilter.velxComp, 
+                compSoleFilter.velyComp, 
+                compSoleFilter.velzComp
+            ),
+            soleVx=compSoleFilter.velxSole,
+            soleVy=compSoleFilter.velySole,
+            soleVz=compSoleFilter.velzSole,
+            soleVtotal=self._calculateTotalVelocity(
+                compSoleFilter.velxSole,
+                compSoleFilter.velySole,
+                compSoleFilter.velzSole
+            )
+        )
+        self._pickleService.saveIntoFile(result)
+        return result
+        
+    
+    def __getRawDataCube(self):
+        return YtRawDataHelper().loadRawData(
+            simFile=self._simFile,
+            timeMyr=self._calculationInfo.timeMyr,
+            rBoxKpc=self._calculationInfo.rBoxKpc,
+            fields=[
+                self._calculationInfo.velxFieldName,
+                self._calculationInfo.velyFieldName,
+                self._calculationInfo.velzFieldName,
+                self._calculationInfo.densityFieldName
+            ]
+        )
+    
