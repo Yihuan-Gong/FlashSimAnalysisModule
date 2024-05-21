@@ -49,6 +49,8 @@ class TurbCompSoleVelocityFilteringStrategy(
             xAxis=turbResult.xAxis,
             yAxis=turbResult.yAxis,
             zAxis=turbResult.zAxis,
+            scale=turbResult.scale,
+            scaleCells=turbResult.scaleCells,
             turbCompVx=compSoleFilter.velxComp,
             turbCompVy=compSoleFilter.velyComp,
             turbCompVz=compSoleFilter.velzComp,

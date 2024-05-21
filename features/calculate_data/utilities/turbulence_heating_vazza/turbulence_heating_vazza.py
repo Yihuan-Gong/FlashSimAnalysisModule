@@ -4,10 +4,7 @@ from .models import (
     TurbulenceHeatingVazzaData3dReturnModel,
     TurbulenceHeatingVazzaCalculationInfoModel
 )
-from .strategies import (
-    TurbulenceHeatingVazzaStrategy,
-    TurbVelTurbulenceHeatingVazzaStrategy
-)
+from .strategies import *
 from .....models import SimFileModel
 
 

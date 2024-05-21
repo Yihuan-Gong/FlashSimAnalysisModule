@@ -12,6 +12,7 @@ from ...velocity_filtering import (
 ) 
 from ......models import SimFileModel
 from ......services import YtRawDataHelper, PickleService
+from ......utility import DataConverter
 
 
 class TurbulenceHeatingVazzaStrategy(ABC):
@@ -36,9 +37,16 @@ class TurbulenceHeatingVazzaStrategy(ABC):
         return self
     
     
-    @abstractmethod
     def getData2d(self, axis: str) -> TurbulenceHeatingVazzaData2dReturnModel:
-        pass
+        result3d = self.getData3d()
+        axes = DataConverter().data3dTo2dGetAxisName(axis)
+        return TurbulenceHeatingVazzaData2dReturnModel(
+            heatingPerMass=DataConverter().data3dTo2dMiddle(result3d.heatingPerMass, axis),
+            heatingPerVolume=DataConverter().data3dTo2dMiddle(result3d.heatingPerVolume, axis),
+            scale=DataConverter().data3dTo2dMiddle(result3d.scale, axis),
+            horizontalAxis=(axes[0], result3d.xAxis),
+            verticalAxis=(axes[1], result3d.yAxis)
+        )
     
     
     @abstractmethod

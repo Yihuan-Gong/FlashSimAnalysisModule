@@ -19,7 +19,7 @@ from ......services import AstropyService
 
 
 class TurbulenceHeatingVazzaData1d:
-    __dbFieldName: str = "TurbulenceHeatingVazza"
+    
 
     
     def getTimeSeries(
@@ -56,12 +56,13 @@ class TurbulenceHeatingVazzaData1d:
         simFile: SimFileModel,
         calcInfo3d: TurbulenceHeatingVazzaCalculationInfoModel
     ) -> u.Quantity:
+        dbFieldName: str = "TurbulenceHeatingVazza" + f"{shape}".split(".")[-1] + f"{mode}".split(".")[-1]
         '''
         Currently can only be used for Shape.Box
         '''
         df = PandasHelper().getDataFromCsv(
             simBasePath=simFile.simPath,
-            field=self.__dbFieldName,
+            field=dbFieldName,
             shape=shape,
             rKpc=calcInfo3d.rBoxKpc,
             tMyr=calcInfo3d.timeMyr
@@ -80,7 +81,7 @@ class TurbulenceHeatingVazzaData1d:
         
         PandasHelper().writeDataIntoCsv(
             simBasePath=simFile.simPath,
-            fieldName=self.__dbFieldName,
+            fieldName=dbFieldName,
             shape=shape,
             dbModelList=[DbModel(
                 rKpc=calcInfo3d.rBoxKpc,

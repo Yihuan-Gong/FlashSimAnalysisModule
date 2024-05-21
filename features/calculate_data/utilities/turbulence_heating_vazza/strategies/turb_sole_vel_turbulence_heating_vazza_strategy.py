@@ -6,7 +6,8 @@ from ...velocity_filtering import (
     VelocityFilteringMode,
 )
 
-class TurbVelTurbulenceHeatingVazzaStrategy(
+
+class TurbSoleVelTurbulenceHeatingVazzaStrategy(
     TurbulenceHeatingVazzaStrategy
 ):
     def getData3d(self) -> TurbulenceHeatingVazzaData3dReturnModel:
@@ -14,10 +15,10 @@ class TurbVelTurbulenceHeatingVazzaStrategy(
         if (result != None):
             return result
         
-        self._initVelocityFilter(VelocityFilteringMode.BulkTurb)
+        self._initVelocityFilter(VelocityFilteringMode.TurbCompSole)
         velFilteringResult = self._velocityFilter.getData3d()
         heatingPerMass = self._calculateHeatingPerMass(
-            velocity=velFilteringResult.turbVtotal,
+            velocity=velFilteringResult.turbSoleVtotal,
             scale=velFilteringResult.scale
         )
         result = TurbulenceHeatingVazzaData3dReturnModel(
