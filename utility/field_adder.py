@@ -1,4 +1,5 @@
 import yt
+from typing import Tuple
 
 class FieldAdder:
 
@@ -113,4 +114,9 @@ class FieldAdder:
     @staticmethod
     def radius(field, data):
         return data['index', 'radius']
+    
+    @staticmethod
+    def getRadiusFieldName() -> Tuple[str, str]:
+        return ('gas', 'radius')
+    
     

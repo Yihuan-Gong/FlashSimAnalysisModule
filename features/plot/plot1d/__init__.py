@@ -8,10 +8,13 @@ from ...calculate_data.calculate_data1d import (
     TurbulenceHeatingProfileCalculationInfoModel,
     TurbulenceHeatingTimeSeriesCalculationInfoModel,
     TurbulenceHeatingVazzaTimeSeriesCalculationInfoModel,
+    TurbulenceHeatingVazzaProfileCalculationInfoModel,
     TurbulenceHeatingVazzaMode,
     YtProfileCalculationInfoModel,
     YtTimeSeriesCalculationInfoModel,
-    JetPowerTimeSeriesCalculationInfoModel
+    JetPowerTimeSeriesCalculationInfoModel,
+    XrayProfileCalculationInfoModel,
+    XrayTimeSeriesCalculationInfoModel
 )
 from ....enum import Shape
 

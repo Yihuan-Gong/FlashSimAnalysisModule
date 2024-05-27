@@ -13,12 +13,18 @@ from .methods.turbulence_heating import (
 from .methods.turbulence_heating_vazza import (
     TurbulenceHeatingVazzaData1d,
     TurbulenceHeatingVazzaMode,
-    TurbulenceHeatingVazzaTimeSeriesCalculationInfoModel
+    TurbulenceHeatingVazzaTimeSeriesCalculationInfoModel,
+    TurbulenceHeatingVazzaProfileCalculationInfoModel
 )
 from .methods.yt import (
     YtData1d,
     YtProfileCalculationInfoModel,
     YtTimeSeriesCalculationInfoModel,
+)
+from .methods.xray import (
+    XrayData1d,
+    XrayProfileCalculationInfoModel,
+    XrayTimeSeriesCalculationInfoModel
 )
 from .models import (
     ProfileReturnModel,
@@ -62,6 +68,19 @@ class Data1dAnalyzor:
         )
     
     
+    def turbulenceHeatingVazzaProfile(
+        self,
+        mode: TurbulenceHeatingVazzaMode,
+        simFile: SimFileModel,
+        calculationInfo: TurbulenceHeatingVazzaProfileCalculationInfoModel
+    ) -> ProfileReturnModel:
+        return TurbulenceHeatingVazzaData1d().getProfile(
+            mode=mode,
+            simFile=simFile,
+            calculationInfo=calculationInfo
+        )
+    
+    
     def turbulenceHeatingVazzaTimeSeries(
         self,
         mode: TurbulenceHeatingVazzaMode,
@@ -80,6 +99,9 @@ class Data1dAnalyzor:
         simFile: SimFileModel,
         calculationInfo: YtProfileCalculationInfoModel
     ) -> ProfileReturnModel:
+        '''
+        Profile doesn't support Shape.Box
+        '''
         return YtData1d().getProfileData(
             simFile=simFile,
             calculationInfo=calculationInfo
@@ -96,6 +118,54 @@ class Data1dAnalyzor:
             calculationInfo=calculationInfo
         )
     
+    
+    def xrayProfile(
+        self, 
+        mode: str,
+        simFile: SimFileModel,
+        calculationInfo: XrayProfileCalculationInfoModel
+    ) -> ProfileReturnModel:
+        '''
+        mode: "emissivity" or "luminosity"
+        
+        This "luminosity" mode automatically do volume intergral from the result of
+        "emissivity" mode. So please use smaller rStepKpc. The smaller rStepKpc
+        is, the more accurate the result is. Using smaller rStepKpc will not result in longer
+        runtime, since the bottom of this method is yt.Profile1D
+        
+        Profile doesn't support Shape.Box
+        '''
+        if (mode == "emissivity"):
+            return XrayData1d().getXrayEmissivityProfile(
+                simFile=simFile,
+                calculationInfo=calculationInfo
+            )
+        else:
+            return XrayData1d().getXrayLuminosityProfile(
+                simFile=simFile,
+                calculationInfo=calculationInfo
+            )
+    
+    
+    def xrayTimeSeries(
+        self,
+        mode: str,
+        simFile: SimFileModel,
+        calculationInfo: XrayTimeSeriesCalculationInfoModel
+    ) -> TimeSeriesReturnModel:
+        '''
+        mode: "emissivity" or "luminosity"
+        '''
+        if (mode == "emissivity"):
+            return XrayData1d().getXrayEmissivityTimeSeries(
+                simFile=simFile,
+                calculationInfo=calculationInfo
+            )
+        else:
+            return XrayData1d().getXrayLuminosityTimeSeries(
+                simFile=simFile,
+                calculationInfo=calculationInfo
+            )
     
     
 

@@ -1,14 +1,19 @@
-from typing import List
+from typing import Callable, List, Tuple
+from astropy import units as u
 import pandas as pd
 import os
 
 from .db_model import DbModel
 from ..enum.shape import Shape
 
-'''
-    PandasHelper can only read/write the database using DbModel
-'''
+
 class PandasHelper():
+    '''
+    PandasHelper can only read/write the database using DbModel
+    '''
+    
+    def getDbFieldName(self, ytFieldName: Tuple[str, str]):
+        return f"{ytFieldName[0]}_{ytFieldName[1]}"
 
     def writeDataIntoCsv(self, simBasePath : str, fieldName : str, shape: Shape, dbModelList: List[DbModel]):
         dfs = [self.__dbModelToDataFrame(dbModel) for dbModel in dbModelList]
@@ -26,11 +31,12 @@ class PandasHelper():
         df.to_csv(filePath, index=False)
         del df, newDf
 
-    '''
-        Return None if file not found, or file exist but no matching data found
-    '''
+    
     def getDataFromCsv(self, simBasePath : str, field : str, shape: Shape, 
                        rKpc : float, tMyr : float) -> pd.DataFrame:
+        '''
+        Return None if file not found, or file exist but no matching data found
+        '''
         resultRow = self.__getData(simBasePath, field, shape, rKpc, tMyr)
         if (resultRow is None):
             return None
@@ -39,6 +45,50 @@ class PandasHelper():
         return resultRow
             # return resultRow['value'].to_list()[0]
 
+    
+    def getDataOrUpdateDb(
+        self,
+        simPath: str,
+        dbFieldName: str,
+        funcToGetValue: Callable[..., u.Quantity],
+        rKpc: float,
+        timeMyr: float,
+        shape: Shape
+    ) -> u.Quantity:
+        '''
+        This method get data from db if required data already exsit;
+        calculate a new data and write to db if required does not exist.
+        '''
+        # Find the calculated result from data base
+        data = self.getDataFromCsv(
+            simBasePath=simPath, 
+            field=dbFieldName,  
+            shape=shape, 
+            rKpc=rKpc, 
+            tMyr=timeMyr
+        )
+        if (data is not None):
+            value = data["value"].to_list()[0] * u.Unit(data["valueUnit"].to_list()[0])
+            return value
+        
+        # If the calculated result does not exist in data base,
+        # we calculate one here
+        value = funcToGetValue()
+        
+        # Write the calculated result into data base
+        PandasHelper().writeDataIntoCsv(
+            simBasePath=simPath, 
+            fieldName=dbFieldName,
+            shape=shape,
+            dbModelList=[DbModel(
+                rKpc=rKpc, 
+                tMyr=timeMyr, 
+                value=float(value.value),
+                valueUnit=value.unit
+            )]
+        )
+        return value
+    
     
     def resetDataBase(self, simBasePath : str, fieldName : str, shape: Shape):
         filePath = self.__getFilePath(simBasePath, fieldName, shape)

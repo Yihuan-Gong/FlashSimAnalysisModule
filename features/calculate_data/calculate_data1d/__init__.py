@@ -9,11 +9,17 @@ from .methods.turbulence_heating import (
 )
 from .methods.turbulence_heating_vazza import (
     TurbulenceHeatingVazzaTimeSeriesCalculationInfoModel,
+    TurbulenceHeatingVazzaProfileCalculationInfoModel,
     TurbulenceHeatingVazzaMode
 )
 from .methods.yt import (
     YtProfileCalculationInfoModel,
     YtTimeSeriesCalculationInfoModel,
+)
+from .methods.xray import (
+    XrayData1d,
+    XrayProfileCalculationInfoModel,
+    XrayTimeSeriesCalculationInfoModel
 )
 from .models import (
     TimeSeriesReturnModel,

@@ -56,6 +56,23 @@ class Plot1d:
         )
     
     
+    def turbulenceHeatingVazzaProfile(
+        self,
+        mode: TurbulenceHeatingVazzaMode,
+        simFile: SimFileModel,
+        calculationInfo: TurbulenceHeatingVazzaProfileCalculationInfoModel,
+        plotInfo: Plot1dInfoModel
+    ) -> Tuple[plt.Figure, plt.Axes]:
+        data = Data1dAnalyzor().turbulenceHeatingVazzaProfile(
+            mode=mode,
+            simFile=simFile,
+            calculationInfo=calculationInfo
+        )
+        return Plot1dRenderer().renderProfilePlot(
+            data=data,
+            plotInfo=plotInfo
+        )
+    
     
     def turbulenceHeatingVazzaTimeSeries(
         self,
@@ -108,8 +125,52 @@ class Plot1d:
         )
     
     
-
+    def xrayProfile(
+        self,
+        mode: str,
+        simFile: SimFileModel,
+        calculationInfo: XrayProfileCalculationInfoModel,
+        plotInfo: Plot1dInfoModel
+    ) -> Tuple[plt.Figure, plt.Axes]:
+        '''
+        mode: "emissivity" or "luminosity"
         
+        This "luminosity" mode automatically do volume intergral from the result of
+        "emissivity" mode. So please use smaller rStepKpc. The smaller rStepKpc
+        is, the more accurate the result is. Using smaller rStepKpc will not result in longer
+        runtime, since the bottom of this method is yt.Profile1D
         
+        Profile doesn't support Shape.Box
+        '''
+        data = Data1dAnalyzor().xrayProfile(
+            mode=mode,
+            simFile=simFile,
+            calculationInfo=calculationInfo
+        )
+        return Plot1dRenderer().renderProfilePlot(
+            data=data,
+            plotInfo=plotInfo
+        )
     
+    
+    def xrayTimeSeries(
+        self,
+        mode: str,
+        simFile: SimFileModel,
+        calculationInfo: XrayTimeSeriesCalculationInfoModel,
+        plotInfo: Plot1dInfoModel
+    ) -> Tuple[plt.Figure, plt.Axes]:
+        '''
+        mode: "emissivity" or "luminosity"
+        '''
+        data = Data1dAnalyzor().xrayTimeSeries(
+            mode=mode,
+            simFile=simFile,
+            calculationInfo=calculationInfo
+        )
+        return Plot1dRenderer().renderTimeSeriesPlot(
+            data=data,
+            plotInfo=plotInfo
+        )
+
     

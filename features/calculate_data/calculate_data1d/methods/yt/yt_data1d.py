@@ -12,15 +12,14 @@ from ...models import (
     ProfileReturnModel,
     TimeSeriesReturnModel
 )
+from ......enum import Shape
 from ......models import SimFileModel
-from ......data_base import PandasHelper, DbModel
+from ......data_base import PandasHelper
 from ......services import YtDsHelper, AstropyService
 from ......utility import FieldAdder
 
 
 class YtData1d:
-    __xrayEmissivityField: Tuple[str, str] = ("gas","xray_emissivity_0.5_7.0_keV")
-    __xrayLuminosityField: Tuple[str, str] = ("gas","xray_luminosity_0.5_7.0_keV")
 
     def __init__(self) -> None:
         FieldAdder.AddFields()
@@ -33,11 +32,15 @@ class YtData1d:
     ) -> TimeSeriesReturnModel:
         result = []
         for timeMyr in calculationInfo.getTimeList():
-            result.append(self.__getData(
-                simFile=simFile,
+            result.append(PandasHelper().getDataOrUpdateDb(
+                simPath=simFile.simPath,
+                dbFieldName=PandasHelper().getDbFieldName(calculationInfo.fieldName),
+                funcToGetValue=self.__calculateValueFromYt(
+                    simFile, calculationInfo.rKpc, timeMyr, calculationInfo
+                ),
                 rKpc=calculationInfo.rKpc,
                 timeMyr=timeMyr,
-                info=calculationInfo
+                shape=calculationInfo.shape
             ))
         return TimeSeriesReturnModel(
             rKpc=calculationInfo.rKpc,
@@ -52,69 +55,29 @@ class YtData1d:
         simFile: SimFileModel,
         calculationInfo: YtProfileCalculationInfoModel
     ) -> ProfileReturnModel:
-        result = []
-        for rKpc in calculationInfo.getRList():
-            result.append(self.__getData(
-                simFile=simFile,
-                rKpc=rKpc,
-                timeMyr=calculationInfo.tMyr,
-                info=calculationInfo
-            ))
+        if (calculationInfo.shape == Shape.Box):
+            raise ValueError("Shape.Box is not supported")
+        region = YtDsHelper().loadRegion(
+            simFile, calculationInfo.shape, 
+            calculationInfo.rEndKpc, calculationInfo.tMyr
+        )
+        prof = yt.Profile1D(
+            data_source=region, 
+            x_field=calculationInfo.radiusFieldName, 
+            x_n=calculationInfo.getRList().__len__(), 
+            x_min=u.Quantity(calculationInfo.rStartKpc, "kpc"), 
+            x_max=u.Quantity(calculationInfo.rEndKpc, "kpc"), 
+            x_log=False, 
+            weight_field=calculationInfo.weightFieldName
+        )
+        prof.add_fields([calculationInfo.fieldName])
         return ProfileReturnModel(
             timeMyr=calculationInfo.tMyr,
             shape=calculationInfo.shape,
-            rKpcList=calculationInfo.getRList(),
-            yValue=AstropyService().quantityListToQuantity(result)
+            rKpcList=prof.x.to_astropy().to("kpc").value,
+            yValue=prof[calculationInfo.fieldName].to_astropy()
         )
         
-    
-    def __getData(
-        self,
-        simFile: SimFileModel,
-        rKpc: float,
-        timeMyr: float,
-        info: YtCalculationInfo
-    ) -> u.Quantity:
-        value: u.Quantity
-        
-        # Field name for data base to give a file name to store calculated data
-        dbFieldName = f"{info.fieldName[0]}_{info.fieldName[1]}"
-        
-        # Find the calculated result from data base
-        data = PandasHelper().getDataFromCsv(
-            simBasePath=simFile.simPath, 
-            field=dbFieldName,  
-            shape=info.shape, 
-            rKpc=rKpc, 
-            tMyr=timeMyr
-        )
-        if (data is not None):
-            value = data["value"].to_list()[0] * u.Unit(data["valueUnit"].to_list()[0])
-            return value
-        
-        # If the calculated result does not exist in data base,
-        # we calculate one here
-        value = self.__calculateValueFromYt(
-            simFile=simFile,
-            rKpc=rKpc,
-            timeMyr=timeMyr,
-            info=info
-        )
-        
-        # Write the calculated result into data base
-        PandasHelper().writeDataIntoCsv(
-            simBasePath=simFile.simPath, 
-            fieldName=dbFieldName,
-            shape=info.shape,
-            dbModelList=[DbModel(
-                rKpc=rKpc, 
-                tMyr=timeMyr, 
-                value=float(value.value),
-                valueUnit=value.unit
-            )]
-        )
-        return value
-    
     
     def __calculateValueFromYt(
         self,
@@ -123,19 +86,8 @@ class YtData1d:
         timeMyr: float,
         info: YtCalculationInfo
     ) -> u.Quantity:
-        value: u.Quantity
-        if (info.fieldName == self.__xrayEmissivityField or
-            info.fieldName == self.__xrayLuminosityField):
-            ds = YtDsHelper().loadDs(simFile, timeMyr, True)
-            yt.add_xray_emissivity_field(ds, 0.5, 7.0, table_type='apec', metallicity=0.3)
-            region = YtDsHelper().loadRegionFromDs(ds, info.shape, rKpc)
-            value = region.quantities.total_quantity(info.fieldName).to_astropy()
-        else:
-            region = YtDsHelper().loadRegion(simFile, info.shape, rKpc, timeMyr)
-            value = region.quantities.weighted_average_quantity(
-                info.fieldName, info.weightFieldName).to_astropy()
-        del region
-        return value
-    
+        region = YtDsHelper().loadRegion(simFile, info.shape, rKpc, timeMyr)
+        return region.quantities.weighted_average_quantity(
+            info.fieldName, info.weightFieldName).to_astropy()
         
     

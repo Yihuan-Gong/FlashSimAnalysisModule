@@ -69,22 +69,18 @@ class BulkTurbVelocityFilteringStrategy\
         1. turbVelocityVector: List[np.ndarray] => [turbVx, turbVy, turbVz]
         2. scale: np.ndarray
         '''
-        velxFlat = self.__getIdlFormatFieldValue(self._calculationInfo.velxFieldName)
-        velyFlat = self.__getIdlFormatFieldValue(self._calculationInfo.velyFieldName)
-        velzFlat = self.__getIdlFormatFieldValue(self._calculationInfo.velzFieldName)
+        velx = self.__getIdlFormatFieldValue(self._calculationInfo.velxFieldName)
+        vely = self.__getIdlFormatFieldValue(self._calculationInfo.velyFieldName)
+        velz = self.__getIdlFormatFieldValue(self._calculationInfo.velzFieldName)
         
         turbVelVector: List[np.ndarray] = []
         scaleVector: List[np.ndarray] = []
         # scale: 
-        for velFlat in [velxFlat, velyFlat, velzFlat]:
+        for vel in [velx, vely, velz]:
             try:
-                # Pass the 1D array to IDL
                 idl.setVariable('n', self._cubeDims[0])
-                # Reshape to 3D array
-                idl.setVariable('vel1D', velFlat)
-                 # Run IDL filering script
-                # idl.execute("vel = reform(vel1D, n, n, n)")
-                idl.execute("vel = vel1D")
+                idl.setVariable('vel', vel)
+                # Run IDL filering script
                 idl.execute(self.__getIdlCode())
             except idl.IdlArithmeticError:
                 pass
