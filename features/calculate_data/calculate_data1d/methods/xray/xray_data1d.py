@@ -8,6 +8,7 @@ from .models import (
     XrayTimeSeriesCalculationInfoModel
 )
 from .models.interface import XrayCalculationInfo
+from ...utilities import Converter
 from ...models import (
     ProfileReturnModel,
     TimeSeriesReturnModel
@@ -86,17 +87,7 @@ class XrayData1d:
             raise ValueError("Shape.Box is not supported")
         
         xrayEmissData = self.getXrayEmissivityProfile(simFile, calculationInfo)
-        xrayLumiProf = np.cumsum(
-            xrayEmissData.yValue * \
-            4*np.pi*u.Quantity(xrayEmissData.rKpcList, "kpc")**2* \
-            (u.Quantity(xrayEmissData.rKpcList[1] - xrayEmissData.rKpcList[0], "kpc"))
-        ).to("erg/s")
-        return ProfileReturnModel(
-            timeMyr=xrayEmissData.timeMyr,
-            shape=xrayEmissData.shape,
-            rKpcList=xrayEmissData.rKpcList,
-            yValue=xrayLumiProf
-        )
+        return Converter().sphereIntegral(xrayEmissData)
     
     
     def getXrayLuminosityTimeSeries(
@@ -170,18 +161,5 @@ class XrayData1d:
         info.addXrayFields(ds)
         return YtDsHelper().loadRegionFromDs(ds, shape, rKpc)
     
-    
-    # def __calculateValueFromYt(
-    #     self,
-    #     simFile: SimFileModel,
-    #     rKpc: float,
-    #     timeMyr: float,
-    #     info: YtCalculationInfo
-    # ) -> u.Quantity:
-    #     region = self.__regionLoader(simFile, rKpc, timeMyr, info)
-    #     if (info.fieldName == self.__xrayLuminosityField):
-    #         return region.quantities.total_quantity(info.fieldName).to_astropy()
-    #     else:
-    #         return region.quantities.weighted_average_quantity(info.fieldName, info.weightFieldName).to_astropy()
     
     

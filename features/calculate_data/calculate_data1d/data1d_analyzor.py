@@ -70,12 +70,27 @@ class Data1dAnalyzor:
     
     def turbulenceHeatingVazzaProfile(
         self,
-        mode: TurbulenceHeatingVazzaMode,
+        powerMode: str,
+        turbMode: TurbulenceHeatingVazzaMode,
         simFile: SimFileModel,
         calculationInfo: TurbulenceHeatingVazzaProfileCalculationInfoModel
     ) -> ProfileReturnModel:
+        '''
+        powerMode: "total" or "perVolume"
+        
+        If you use mode "total", this method automatically to volume integral
+        from the result of mode "perVolume" Therefore, to ensure a accurate result
+        and get rid of intergration constant error, please set rKpcStart=0 and use
+        lower rStepKpc.
+        
+        Please also use smaller rStepKpc for mode "perVolume", because it make the
+        curve smoother and take the same time as larger rStepKpc.
+        
+        Shape.Box is not supported
+        '''
         return TurbulenceHeatingVazzaData1d().getProfile(
-            mode=mode,
+            powerMode=powerMode,
+            turbMode=turbMode,
             simFile=simFile,
             calculationInfo=calculationInfo
         )
@@ -83,12 +98,17 @@ class Data1dAnalyzor:
     
     def turbulenceHeatingVazzaTimeSeries(
         self,
-        mode: TurbulenceHeatingVazzaMode,
+        powerMode: str,
+        turbMode: TurbulenceHeatingVazzaMode,
         simFile: SimFileModel,
         calculationInfo: TurbulenceHeatingVazzaTimeSeriesCalculationInfoModel
     ) -> TimeSeriesReturnModel:
+        '''
+        powerMode: "total" or "perVolume"
+        '''
         return TurbulenceHeatingVazzaData1d().getTimeSeries(
-            mode=mode,
+            powerMode=powerMode,
+            turbMode=turbMode,
             simFile=simFile,
             calculationInfo=calculationInfo
         )

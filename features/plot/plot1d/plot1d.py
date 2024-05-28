@@ -58,13 +58,20 @@ class Plot1d:
     
     def turbulenceHeatingVazzaProfile(
         self,
-        mode: TurbulenceHeatingVazzaMode,
+        powerMode: TurbulenceHeatingVazzaMode,
+        turbMode: str,
         simFile: SimFileModel,
         calculationInfo: TurbulenceHeatingVazzaProfileCalculationInfoModel,
         plotInfo: Plot1dInfoModel
     ) -> Tuple[plt.Figure, plt.Axes]:
+        '''
+        powerMode: "total" or "perVolume"
+
+        Shape.Box is not supported
+        '''
         data = Data1dAnalyzor().turbulenceHeatingVazzaProfile(
-            mode=mode,
+            powerMode=powerMode,
+            turbMode=turbMode,
             simFile=simFile,
             calculationInfo=calculationInfo
         )
@@ -76,13 +83,18 @@ class Plot1d:
     
     def turbulenceHeatingVazzaTimeSeries(
         self,
-        mode: TurbulenceHeatingVazzaMode,
+        powerMode: TurbulenceHeatingVazzaMode,
+        turbMode: str,
         simFile: SimFileModel,
         calculationInfo: TurbulenceHeatingVazzaTimeSeriesCalculationInfoModel,
         plotInfo: Plot1dInfoModel
     ) -> Tuple[plt.Figure, plt.Axes]:
+        '''
+        powerMode: "total" or "perVolume"
+        '''
         data = Data1dAnalyzor().turbulenceHeatingVazzaTimeSeries(
-            mode=mode,
+            powerMode=powerMode,
+            turbMode=turbMode,
             simFile=simFile,
             calculationInfo=calculationInfo
         )
