@@ -45,9 +45,9 @@ class XrayData1d:
         prof = yt.Profile1D(
             data_source=region, 
             x_field=FieldAdder.getRadiusFieldName(), 
-            x_n=calculationInfo.getRList().__len__(), 
+            x_n=calculationInfo.getRList().__len__()-1, 
             x_min=u.Quantity(calculationInfo.rStartKpc, "kpc"), 
-            x_max=u.Quantity(calculationInfo.rEndKpc, "kpc"), 
+            x_max=u.Quantity(calculationInfo.rEndKpc-calculationInfo.rStepKpc, "kpc"), 
             x_log=False, 
             weight_field=calculationInfo.weightFieldName
         )

@@ -1,5 +1,6 @@
 from enum import Enum
 
 class TurbulenceHeatingVazzaMode(Enum):
-    TurbVel = 1
-    TurbSoleVel = 2
+    TotalVel = 1
+    TurbVel = 2
+    TurbSoleVel = 3
