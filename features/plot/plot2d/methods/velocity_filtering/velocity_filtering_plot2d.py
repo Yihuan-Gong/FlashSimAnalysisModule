@@ -17,6 +17,7 @@ class VelocityFilteringPlot2d:
     
     def __init__(self) -> None:
         self.__fieldToMode = {
+            VelocityFilteringField.Vtotal : VelocityFilteringMode.Total,
             VelocityFilteringField.turbVtotal : VelocityFilteringMode.BulkTurb,
             VelocityFilteringField.scale : VelocityFilteringMode.BulkTurb,
             VelocityFilteringField.compVtotal : VelocityFilteringMode.CompSole,

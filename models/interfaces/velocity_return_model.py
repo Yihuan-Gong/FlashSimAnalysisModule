@@ -4,6 +4,10 @@ import numpy as np
 
 @dataclass
 class VelocityReturnModel:
+    Vx: u.Quantity = None
+    Vy: u.Quantity = None
+    Vz: u.Quantity = None
+    Vtotal: u.Quantity = None
     turbVx: u.Quantity = None
     turbVy: u.Quantity = None
     turbVz: u.Quantity = None

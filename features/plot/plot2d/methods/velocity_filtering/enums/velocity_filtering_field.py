@@ -1,6 +1,7 @@
 from enum import Enum
 
 class VelocityFilteringField(Enum):
+    Vtotal = 0
     turbVtotal = 1
     compVtotal = 2
     soleVtotal = 3
