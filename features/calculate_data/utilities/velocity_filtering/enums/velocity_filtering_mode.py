@@ -5,3 +5,4 @@ class VelocityFilteringMode(Enum):
     BulkTurb = 1
     CompSole = 2
     TurbCompSole = 3
+    Simonte = 4

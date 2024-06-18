@@ -1,7 +1,7 @@
 from typing import Tuple, List
 from astropy import units as u
-import mirpyidl as idl
 import numpy as np
+import gc
 
 from .velocity_filtering_strategy import VelocityFilteringStrategy
 from ..model import (
@@ -33,22 +33,30 @@ class TotalVelocityFilteringStrategy(
         if (result != None):
             return result
         
-        (cube, cubeDims) = self._getVelocityRawDataCube()
+        gc.disable()
+        (self._cube, self._cubeDims) = self._getVelocityRawDataCube()
         cellCoor: u.Quantity = CellCoorCalculator().getAxisCoor(
             simFile=self._simFile, calculationInfo=self._calculationInfo
         )
-        # Vx=cube[self._calculationInfo.velxFieldName].to_astropy()
-        # Vy=cube[self._calculationInfo.velyFieldName].to_astropy()
-        # Vz=cube[self._calculationInfo.velzFieldName].to_astropy()
-        # Vtotal = np.sqrt(Vx**2 + Vy**2 + Vz**2)
+        
+        # print(f"cube keys: {list(cube.keys())}")
+        # print(f"self._calculationInfo.velxFieldName: {self._calculationInfo.velxFieldName}")
+        # print(f"cube[self._calculationInfo.velxFieldName]: {cube[self._calculationInfo.velxFieldName]}")
+        
+        Vx=self._cube[self._calculationInfo.velxFieldName].to_astropy()
+        Vy=self._cube[self._calculationInfo.velyFieldName].to_astropy()
+        Vz=self._cube[self._calculationInfo.velzFieldName].to_astropy()
+        Vtotal = np.sqrt(Vx**2 + Vy**2 + Vz**2)
+        
         result = VelocityFilteringData3dReturnModel(
             xAxis=cellCoor,
             yAxis=cellCoor,
             zAxis=cellCoor,
-            Vx=cube[self._calculationInfo.velxFieldName].to_astropy(),
-            Vy=cube[self._calculationInfo.velyFieldName].to_astropy(),
-            Vz=cube[self._calculationInfo.velzFieldName].to_astropy(),
-            Vtotal=None
+            Vx=Vx,
+            Vy=Vy,
+            Vz=Vz,
+            Vtotal=Vtotal
         )
         self._pickleService.saveIntoFile(result)
+        gc.enable()
         return result
