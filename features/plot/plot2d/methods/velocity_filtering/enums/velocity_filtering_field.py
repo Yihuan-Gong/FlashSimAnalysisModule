@@ -8,4 +8,5 @@ class VelocityFilteringField(Enum):
     turbCompVtotal = 4
     turbSoleVtotal = 5
     scale = 6
+    simonteVtotal = 7
     

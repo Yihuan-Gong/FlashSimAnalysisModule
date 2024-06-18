@@ -14,4 +14,5 @@ class VelocityFilteringCalculationInfoModel \
     bulkTurbFilteringMaxScale: int = None
     bulkTurbFilteringEps: float = 0.1
     densityFieldName: Tuple[str, str] = ("gas", "density")
+    soundSpeedFieldName: Tuple[str, str] = ("gas", "sound_speed")
     pass

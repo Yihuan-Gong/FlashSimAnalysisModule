@@ -23,7 +23,8 @@ class VelocityFilteringPlot2d:
             VelocityFilteringField.compVtotal : VelocityFilteringMode.CompSole,
             VelocityFilteringField.soleVtotal : VelocityFilteringMode.CompSole,
             VelocityFilteringField.turbCompVtotal : VelocityFilteringMode.TurbCompSole,
-            VelocityFilteringField.turbSoleVtotal : VelocityFilteringMode.TurbCompSole
+            VelocityFilteringField.turbSoleVtotal : VelocityFilteringMode.TurbCompSole,
+            VelocityFilteringField.simonteVtotal : VelocityFilteringMode.Simonte
         } 
     
     
