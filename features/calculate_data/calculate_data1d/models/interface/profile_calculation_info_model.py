@@ -1,4 +1,6 @@
 from dataclasses import dataclass
+from typing import List
+import numpy as np
 
 @dataclass
 class ProfileCalculationInfoModel:
@@ -8,9 +10,9 @@ class ProfileCalculationInfoModel:
     tMyr: float
     
     def getRList(self):
-        return list(range(
+        return np.arange(
             self.rStartKpc,
             self.rEndKpc,
             self.rStepKpc
-        ))
+        )
 
