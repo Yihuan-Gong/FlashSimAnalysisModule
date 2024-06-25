@@ -1,6 +1,6 @@
 from typing import Tuple
 from matplotlib.figure import Figure
-from matplotlib.colors import LogNorm
+from matplotlib.colors import LogNorm, SymLogNorm
 import matplotlib.pyplot as plt
 from astropy import units as u
 import numpy as np
@@ -33,7 +33,7 @@ class Renderer:
             vmax=None if plotInfo.isLog else plotInfo.zlimMax,
             vmin=None if plotInfo.isLog else plotInfo.zlimMin,
             cmap=plotInfo.color,
-            norm=LogNorm(plotInfo.zlimMin, plotInfo.zlimMax) \
+            norm=SymLogNorm(linthresh=plotInfo.zlimThresh, vmin=plotInfo.zlimMin, vmax=plotInfo.zlimMax) \
                 if plotInfo.isLog else None
         )
 
