@@ -2,31 +2,18 @@ from typing import Dict, Tuple
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 
-from .enums import VelocityFilteringField
+
 from ...utilities import Renderer
 from ...models import Plot2dInfoModel
 from .....calculate_data.calculate_data2d import (
     Data2dAnalyzor,
     VelocityFilteringMode,
+    VelocityFilteringField,
     VelocityFilteringCalculationInfoModel,
 )
 from ......models import SimFileModel
 
 class VelocityFilteringPlot2d:
-    __fieldToMode: Dict[VelocityFilteringField, VelocityFilteringMode]
-    
-    def __init__(self) -> None:
-        self.__fieldToMode = {
-            VelocityFilteringField.Vtotal : VelocityFilteringMode.Total,
-            VelocityFilteringField.turbVtotal : VelocityFilteringMode.BulkTurb,
-            VelocityFilteringField.scale : VelocityFilteringMode.BulkTurb,
-            VelocityFilteringField.compVtotal : VelocityFilteringMode.CompSole,
-            VelocityFilteringField.soleVtotal : VelocityFilteringMode.CompSole,
-            VelocityFilteringField.turbCompVtotal : VelocityFilteringMode.TurbCompSole,
-            VelocityFilteringField.turbSoleVtotal : VelocityFilteringMode.TurbCompSole,
-            VelocityFilteringField.simonteVtotal : VelocityFilteringMode.Simonte
-        } 
-    
     
     def plotByField(
         self, 
@@ -36,8 +23,8 @@ class VelocityFilteringPlot2d:
         calculationInfo: VelocityFilteringCalculationInfoModel,
         plotInfo: Plot2dInfoModel
     ) -> Tuple[Figure, plt.Axes]:
-        result = Data2dAnalyzor().velocityFiltering(
-            mode=self.__fieldToMode[field],
+        result = Data2dAnalyzor().velocityFilteringByField(
+            field=field,
             axis=axis,
             simFile=simFile,
             calculationInfo=calculationInfo

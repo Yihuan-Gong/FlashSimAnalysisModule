@@ -1,4 +1,4 @@
-from .enums import VelocityFilteringMode
+from .enums import VelocityFilteringMode, VelocityFilteringField
 from .model import (
     VelocityFilteringCalculationInfoModel,
     VelocityFilteringData2dReturnModel,

@@ -26,6 +26,11 @@ from .methods.xray import (
     XrayProfileCalculationInfoModel,
     XrayTimeSeriesCalculationInfoModel
 )
+from .methods.simonte_sigma_rho_sigma_v import (
+    SimonteSigmaRhoSigmaV,
+    SimonteSigmaRhoSigmaVCalculationInfoModel,
+    SimonteSigmaRhoSigmaVReturnModel,
+)
 from .models import (
     ProfileReturnModel,
     TimeSeriesReturnModel
@@ -186,6 +191,17 @@ class Data1dAnalyzor:
                 simFile=simFile,
                 calculationInfo=calculationInfo
             )
+
+    
+    def simonteSigmaRhoSigmaV(
+        self,
+        simFile: SimFileModel,
+        calculationInfo: SimonteSigmaRhoSigmaVCalculationInfoModel
+    ) -> SimonteSigmaRhoSigmaVReturnModel:
+        return SimonteSigmaRhoSigmaV().setInputs(
+            simFile=simFile,
+            calculationInfo=calculationInfo
+        ).getResult()
     
     
 

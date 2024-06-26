@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 
 from .models import Plot2dInfoModel
 from .methods.velocity_filtering import (
-    VelocityFilteringField,
     VelocityFilteringPlot2d
 )
 from .utilities import Renderer

@@ -21,6 +21,12 @@ from .methods.xray import (
     XrayProfileCalculationInfoModel,
     XrayTimeSeriesCalculationInfoModel
 )
+from .methods.simonte_sigma_rho_sigma_v import (
+    SimonteSigmaRhoSigmaV,
+    SimonteSigmaRhoSigmaVCalculationInfoModel,
+    SimonteSigmaRhoSigmaVReturnModel,
+    VelocityFilteringField
+)
 from .models import (
     TimeSeriesReturnModel,
     ProfileReturnModel

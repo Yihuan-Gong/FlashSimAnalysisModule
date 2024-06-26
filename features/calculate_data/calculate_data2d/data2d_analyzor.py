@@ -2,7 +2,13 @@ from ..utilities.velocity_filtering import (
     VelocityFiltering, 
     VelocityFilteringCalculationInfoModel,
     VelocityFilteringData2dReturnModel,
-    VelocityFilteringMode
+    VelocityFilteringMode,
+    VelocityFilteringField
+)
+from ..utilities.density_filtering import (
+    DensityFiltering,
+    DensityFilteringCalculationInfoModel,
+    DensityFilteringData2dReturnModel
 )
 from ..utilities.turbulence_heating_vazza import (
     TurbulenceHeatingVazza,
@@ -20,15 +26,24 @@ from ....models import SimFileModel
 
 class Data2dAnalyzor:
     
-    def velocityFiltering(
+    def velocityFilteringByField(
             self, 
-            mode: VelocityFilteringMode,
+            field: VelocityFilteringField,
             axis: str,
             simFile: SimFileModel, 
             calculationInfo: VelocityFilteringCalculationInfoModel
         ) -> VelocityFilteringData2dReturnModel:
         return VelocityFiltering()\
-            .setInputs(mode, simFile, calculationInfo).getData2d(axis)
+            .setInputsByField(field, simFile, calculationInfo).getData2d(axis)
+    
+    
+    def densityFiltering(
+        self,
+        axis: str,
+        simFile: SimFileModel,
+        calculationInfo: DensityFilteringCalculationInfoModel
+    ) -> DensityFilteringData2dReturnModel:
+        return DensityFiltering().setInputs(simFile, calculationInfo).getData2d(axis)
     
     
     def turbulenceHeatingVazza(

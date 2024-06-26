@@ -1,1 +1,2 @@
 from .velocity_filtering_mode import VelocityFilteringMode
+from .velocity_filtering_field import VelocityFilteringField

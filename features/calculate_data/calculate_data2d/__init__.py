@@ -6,7 +6,13 @@ from ..utilities.turbulence_heating_vazza import (
 from ..utilities.velocity_filtering import (
     VelocityFilteringCalculationInfoModel,
     VelocityFilteringMode,
+    VelocityFilteringField,
     VelocityFilteringData2dReturnModel
+)
+from ..utilities.density_filtering import (
+    DensityFiltering,
+    DensityFilteringCalculationInfoModel,
+    DensityFilteringData2dReturnModel
 )
 from .methods.los_vel_dispersion import (
     LosDispersionCalculationInfoModel,
