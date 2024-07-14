@@ -29,11 +29,11 @@ class SimonteSigmaRhoSigmaV:
         
         deltaRho: u.Quantity = deltaRhoResult.deltaRho
         deltaV: u.Quantity = getattr(deltaVResult, f"{self.__calculationInfo.velocityField}".split(".")[-1])
-        rho: u.Quantity = ytDataCube[self.__calculationInfo.densityFieldName].to_astropy()
+        rhoAvg: u.Quantity = deltaRhoResult.rho - deltaRho
         soundSpeed: u.Quantity = ytDataCube[self.__calculationInfo.soundSpeedFieldName].to_astropy()
         
         numberOfCubeEachSide = self.__calculationInfo.numberOfCubeEachSide
-        sigmaRho = self.__computeRmsInCubes(deltaRho/rho, numberOfCubeEachSide)
+        sigmaRho = self.__computeRmsInCubes(deltaRho/rhoAvg, numberOfCubeEachSide)
         sigmaV = self.__computeRmsInCubes(deltaV/soundSpeed, numberOfCubeEachSide)
         return SimonteSigmaRhoSigmaVReturnModel(
             sigmaRho=sigmaRho,
@@ -70,7 +70,7 @@ class SimonteSigmaRhoSigmaV:
             timeMyr=self.__calculationInfo.timeMyr,
             rBoxKpc=self.__calculationInfo.rBoxKpc,
             fields=[
-                self.__calculationInfo.densityFieldName,
+                # self.__calculationInfo.densityFieldName,
                 self.__calculationInfo.soundSpeedFieldName
             ]
         )
