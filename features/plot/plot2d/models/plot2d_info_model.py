@@ -12,7 +12,7 @@ class Plot2dInfoModel:
     color: str = "viridis"
     zlimMin: float = None
     zlimMax: float = None
-    zlimThresh: float = 1e-99
+    zlimThresh: float = None
     showTimeInfo: bool = True
     fig: plt.Figure = None
     ax: plt.Axes = None

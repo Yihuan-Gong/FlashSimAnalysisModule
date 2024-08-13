@@ -45,13 +45,13 @@ class FieldAdder:
             force_override=True
         )
 
-        yt.add_field(
-            ("gas", "potential"), 
-            function = FieldAdder.potential, 
-            sampling_type='cell', 
-            units='erg/g',
-            force_override=True
-        )
+        # yt.add_field(
+        #     ("gas", "potential"), 
+        #     function = FieldAdder.potential, 
+        #     sampling_type='cell', 
+        #     units='erg/g',
+        #     force_override=True
+        # )
 
         yt.add_field(
             ('gas', 'density'), 

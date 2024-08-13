@@ -16,10 +16,17 @@ from ..utilities.density_filtering import (
     DensityFilteringCalculationInfoModel,
     DensityFilteringData3dReturnModel
 )
+from ..utilities.yt_field import (
+    YtField,
+    YtFieldCalculationInfoModel,
+    YtFieldData3dReturnModel
+)
 from ....models import SimFileModel
 
 class Data3dAnalyzor:
-
+    
+    ytField = YtField()
+    
     def velocityFiltering(
             self, 
             mode: VelocityFilteringMode,

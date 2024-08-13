@@ -16,6 +16,6 @@ class DensityFilteringCalculationInfoModel(
     filteringBoxSizeKpc: mode "box" only
     '''
     densityFieldName: Tuple[str, str] = ("gas", "density")
-    densityFilteringMode: str = "radial"
+    # densityFilteringMode: str = "radial"
     filteringBoxSizeKpc: float = None
     pass

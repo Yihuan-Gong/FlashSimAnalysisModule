@@ -14,5 +14,9 @@ from ..utilities.density_filtering import (
     DensityFilteringCalculationInfoModel,
     DensityFilteringData3dReturnModel
 )
+from ..utilities.yt_field import (
+    YtFieldCalculationInfoModel,
+    YtFieldData3dReturnModel
+)
 from .data3d_analyzor import Data3dAnalyzor
 from ....models import SimFileModel

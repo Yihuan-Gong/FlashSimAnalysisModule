@@ -33,7 +33,9 @@ class Renderer:
             vmax=None if plotInfo.isLog else plotInfo.zlimMax,
             vmin=None if plotInfo.isLog else plotInfo.zlimMin,
             cmap=plotInfo.color,
-            norm=SymLogNorm(linthresh=plotInfo.zlimThresh, vmin=plotInfo.zlimMin, vmax=plotInfo.zlimMax) \
+            norm=SymLogNorm(
+                linthresh=self.__adjustZlimThresh(plotInfo).zlimThresh, 
+                vmin=plotInfo.zlimMin, vmax=plotInfo.zlimMax) \
                 if plotInfo.isLog else None
         )
 
@@ -57,3 +59,13 @@ class Renderer:
         plotInfo.ax.set_xlabel(f"{axis.horizontalAxis[0]} ({axisUnit})")
         plotInfo.ax.set_ylabel(f"{axis.verticalAxis[0]} ({axisUnit})")
         return plotInfo.fig, plotInfo.ax
+    
+    
+    def __adjustZlimThresh(self, plotInfo: Plot2dInfoModel) -> Plot2dInfoModel:
+        zlimThresh = plotInfo.zlimThresh
+        if (zlimThresh == None):
+            if (plotInfo.zlimMax > 0 and plotInfo.zlimMin < 0):
+                raise ValueError("You must set zlimThresh for symLog plot")
+            else:
+                plotInfo.zlimThresh = plotInfo.zlimMin
+        return plotInfo

@@ -1,3 +1,4 @@
+from typing import Tuple
 from astropy import units as u
 from dacite import from_dict
 import numpy as np
@@ -9,7 +10,6 @@ from .models import (
 )
 from ....calculate_data3d import *
 from ......models import SimFileModel
-from ......services import YtRawDataHelper
 
 class SimonteSigmaRhoSigmaV:
     __simFile: SimFileModel
@@ -23,32 +23,26 @@ class SimonteSigmaRhoSigmaV:
     
     
     def getResult(self):
-        deltaRhoResult = self.__getDeltaRho()
-        deltaVResult = self.__getDeltaV()
-        ytDataCube, _ = self.__loadDataCube()
-        
-        deltaRho: u.Quantity = deltaRhoResult.deltaRho
-        deltaV: u.Quantity = getattr(deltaVResult, f"{self.__calculationInfo.velocityField}".split(".")[-1])
-        rhoAvg: u.Quantity = deltaRhoResult.rho - deltaRho
-        soundSpeed: u.Quantity = ytDataCube[self.__calculationInfo.soundSpeedFieldName].to_astropy()
+        rho = self.__getYtFieldResult(self.__calculationInfo.densityFieldName)
+        cs = self.__getYtFieldResult(self.__calculationInfo.soundSpeedFieldName)
+        deltaV: u.Quantity = getattr(self.__getDeltaV(), f"{self.__calculationInfo.velocityField}".split(".")[-1])
         
         numberOfCubeEachSide = self.__calculationInfo.numberOfCubeEachSide
-        sigmaRho = self.__computeRmsInCubes(deltaRho/rhoAvg, numberOfCubeEachSide)
-        sigmaV = self.__computeRmsInCubes(deltaV/soundSpeed, numberOfCubeEachSide)
+        sigmaRho = self.__computeRmsInCubes(rho.radialAvgFilteredFieldValue/rho.radialAvgFieldValue, numberOfCubeEachSide)
+        sigmaV = self.__computeRmsInCubes(deltaV/cs.radialAvgFieldValue, numberOfCubeEachSide)
         return SimonteSigmaRhoSigmaVReturnModel(
             sigmaRho=sigmaRho,
             sigmaV=sigmaV
         )
         
         
-    
-    
-    def __getDeltaRho(self):
-        return Data3dAnalyzor().densityFiltering(
-            simFile=self.__simFile,
-            calculationInfo=from_dict(
-                data_class=VelocityFilteringCalculationInfoModel,
-                data=self.__calculationInfo.__dict__
+    def __getYtFieldResult(self, fieldName: Tuple[str, str]):
+        return Data3dAnalyzor().ytField.getRadialAvgFilteredValue(
+            self.__simFile,
+            calculationInfo=YtFieldCalculationInfoModel(
+                timeMyr=self.__calculationInfo.timeMyr,
+                rBoxKpc=self.__calculationInfo.rBoxKpc,
+                fieldName=fieldName
             )
         )
     
@@ -61,18 +55,6 @@ class SimonteSigmaRhoSigmaV:
                 data_class=VelocityFilteringCalculationInfoModel,
                 data=self.__calculationInfo.__dict__
             )
-        )
-        
-    
-    def __loadDataCube(self):
-        return YtRawDataHelper().loadRawData(
-            simFile=self.__simFile,
-            timeMyr=self.__calculationInfo.timeMyr,
-            rBoxKpc=self.__calculationInfo.rBoxKpc,
-            fields=[
-                # self.__calculationInfo.densityFieldName,
-                self.__calculationInfo.soundSpeedFieldName
-            ]
         )
     
     

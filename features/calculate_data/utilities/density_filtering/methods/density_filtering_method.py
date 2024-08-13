@@ -158,32 +158,3 @@ class DensityFilteringMethod:
         array3d = array3d * radialProfile.unit
         return array3d
     
-    
-    
-    
-    
-    # Box filtering method (Leave it here for backup)
-    # def __getAvgDensity(self, Lkpc: float, cellSizeKpc: float) -> u.Quantity:
-    #     (densCube, densCubeDim) = YtRawDataHelper().loadRawData(
-    #         simFile=self._simFile,
-    #         timeMyr=self._calculationInfo.timeMyr,
-    #         rBoxKpc=self._calculationInfo.rBoxKpc + Lkpc/2,
-    #         fields=[self._calculationInfo.densityFieldName]
-    #     )
-        
-    #     subBoxHalfLen = int(Lkpc / 2 / cellSizeKpc)
-    #     minIndex = densCubeDim[0] // 2 - self._cubeDims[0]//2
-    #     maxIndex = densCubeDim[0] // 2 + self._cubeDims[0]//2
-    #     avgDensity = u.Quantity(np.zeros(self._cubeDims), "g/cm**3")
-        
-    #     for i in range(minIndex, maxIndex + 1):
-    #         for j in range(minIndex, maxIndex + 1):
-    #             for k in range(minIndex, maxIndex + 1):
-    #                 avgDensity[i - minIndex, j - minIndex, k - minIndex] = \
-    #                     densCube[self._calculationInfo.densityFieldName].to_astropy()[
-    #                     i - subBoxHalfLen : i + subBoxHalfLen + 1,
-    #                     j - subBoxHalfLen : j + subBoxHalfLen + 1,
-    #                     k - subBoxHalfLen : k + subBoxHalfLen + 1
-    #                 ].mean()
-        
-    #     return avgDensity
