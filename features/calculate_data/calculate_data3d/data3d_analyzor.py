@@ -11,11 +11,6 @@ from ..utilities.turbulence_heating_vazza import (
     TurbulenceHeatingVazzaData3dReturnModel,
     TurbulenceHeatingVazzaMode
 )
-from ..utilities.density_filtering import (
-    DensityFiltering,
-    DensityFilteringCalculationInfoModel,
-    DensityFilteringData3dReturnModel
-)
 from ..utilities.yt_field import (
     YtField,
     YtFieldCalculationInfoModel,
@@ -45,14 +40,6 @@ class Data3dAnalyzor:
     ) -> VelocityFilteringData3dReturnModel:
         return VelocityFiltering()\
             .setInputsByField(field, simFile, calculationInfo).getData3d()
-    
-    
-    def densityFiltering(
-        self,
-        simFile: SimFileModel,
-        calculationInfo: DensityFilteringCalculationInfoModel
-    ) -> DensityFilteringData3dReturnModel:
-        return DensityFiltering().setInputs(simFile, calculationInfo).getData3d()
     
     
     def turbulenceHeatingVazza(

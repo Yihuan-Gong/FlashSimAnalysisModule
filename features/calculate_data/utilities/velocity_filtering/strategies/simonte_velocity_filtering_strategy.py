@@ -1,3 +1,4 @@
+from typing import Tuple
 from astropy import units as u
 import numpy as np
 import gc
@@ -7,10 +8,7 @@ from ..model import (
     VelocityFilteringData2dReturnModel,
     VelocityFilteringData3dReturnModel
 )
-from ...density_filtering import (
-    DensityFiltering,
-    DensityFilteringCalculationInfoModel,
-)
+from ...yt_field import *
 from ......services import YtRawDataHelper
 from ......utility import DataConverter, CellCoorCalculator
 
@@ -64,21 +62,21 @@ class SimonteVelocityFilteringStrategy(
     
     
     def __calculateSimonteVelocity(self):
-        densityFilteringResult = DensityFiltering().setInputs(
-            simFile=self._simFile,
-            calculationInfo=DensityFilteringCalculationInfoModel(
-                timeMyr=self._calculationInfo.timeMyr,
-                rBoxKpc=self._calculationInfo.rBoxKpc
-            )
-        ).getData3d()
+        rho = self.__getYtFieldResult(self._calculationInfo.densityFieldName)
+        cs = self.__getYtFieldResult(self._calculationInfo.soundSpeedFieldName)
         
-        rho = densityFilteringResult.rho
-        deltaRho = densityFilteringResult.deltaRho
-        rhoAvg = rho - deltaRho
-        
-        (self._cube, self._cubeDims) = self.__loadDataCube()
-        soundSpeed = self._cube[self._calculationInfo.soundSpeedFieldName].to_astropy().to("cm/s")
-        
-        simonteVelocity: u.Quantity = deltaRho/rhoAvg*soundSpeed
+        #deltaRho/rhoAvg*soundSpeed
+        simonteVelocity: u.Quantity = rho.radialAvgFilteredFieldValue/rho.radialAvgFieldValue*cs.radialAvgFieldValue
         return simonteVelocity
+    
+    
+    def __getYtFieldResult(self, fieldName: Tuple[str, str]):
+        return YtField().getRadialAvgFilteredValue(
+            self._simFile,
+            calculationInfo=YtFieldCalculationInfoModel(
+                timeMyr=self._calculationInfo.timeMyr,
+                rBoxKpc=self._calculationInfo.rBoxKpc,
+                fieldName=fieldName
+            )
+        )
         

@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from astropy import units as u
+import numpy as np
 
 from ..models import (
     TurbulenceHeatingVazzaData2dReturnModel,
@@ -81,6 +82,6 @@ class TurbulenceHeatingVazzaStrategy(ABC):
         velocity: u.Quantity, 
         scale: u.Quantity,
     ) -> u.Quantity:
-        result = 0.5*velocity**3/scale
+        result =  np.abs(0.5*velocity**3/scale)
         return result.to("erg/(s*g)")
 

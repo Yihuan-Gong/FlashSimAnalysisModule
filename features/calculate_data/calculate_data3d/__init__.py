@@ -9,11 +9,6 @@ from ..utilities.velocity_filtering import (
     VelocityFilteringField,
     VelocityFilteringData3dReturnModel
 )
-from ..utilities.density_filtering import (
-    DensityFiltering,
-    DensityFilteringCalculationInfoModel,
-    DensityFilteringData3dReturnModel
-)
 from ..utilities.yt_field import (
     YtFieldCalculationInfoModel,
     YtFieldData3dReturnModel

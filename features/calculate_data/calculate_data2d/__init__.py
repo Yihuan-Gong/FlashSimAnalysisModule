@@ -9,11 +9,6 @@ from ..utilities.velocity_filtering import (
     VelocityFilteringField,
     VelocityFilteringData2dReturnModel
 )
-from ..utilities.density_filtering import (
-    DensityFiltering,
-    DensityFilteringCalculationInfoModel,
-    DensityFilteringData2dReturnModel
-)
 from .methods.los_vel_dispersion import (
     LosDispersionCalculationInfoModel,
     LosVelDispersionData2dReturnModel
