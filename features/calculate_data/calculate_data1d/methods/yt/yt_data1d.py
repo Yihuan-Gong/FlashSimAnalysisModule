@@ -71,11 +71,18 @@ class YtData1d:
             weight_field=calculationInfo.weightFieldName
         )
         prof.add_fields([calculationInfo.fieldName])
+        
+        y_val = prof[calculationInfo.fieldName]
+        if str(y_val.units) == "dimensionless":
+            y_array = y_val.value * u.dimensionless_unscaled
+        else:
+            y_array = y_val.to_astropy()
+        
         return ProfileReturnModel(
             timeMyr=calculationInfo.tMyr,
             shape=calculationInfo.shape,
             rKpcList=prof.x.to_astropy().to("kpc").value,
-            yValue=prof[calculationInfo.fieldName].to_astropy()
+            yValue=y_array
         )
         
     
