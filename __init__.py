@@ -4,3 +4,5 @@ from .models import *
 from .features.calculate_data.calculate_data1d import *
 from .features.calculate_data.calculate_data2d import *
 from .features.calculate_data.calculate_data3d import *
+from .features.plot.plot1d import *
+from .features.plot.plot2d import *
