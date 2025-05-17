@@ -1,6 +1,7 @@
 ### Home
 
-Please visit here for the [Chinese version](/MFKZwMQ7SyCqGYesxzLLng).
+Please visit here for the [document on HackMD](https://hackmd.io/@vRbtycIXRReTqXAqF-QG3w/S1bGFTSZge).
+Please visit here for the [Chinese version](https://hackmd.io/@vRbtycIXRReTqXAqF-QG3w/HyUNPqHbxe).
 
 ## Package Overview
 
@@ -28,5 +29,5 @@ Note:
 
 ## Table of Contents
 
-* [Getting Started](/9mhJUok4TheXw-lRw9lhUA)
+* [Getting Started](https://hackmd.io/@vRbtycIXRReTqXAqF-QG3w/HJz5Y6HWge)
 * For Developers
