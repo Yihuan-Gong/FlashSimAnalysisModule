@@ -13,5 +13,8 @@ from ..utilities.yt_field import (
     YtFieldCalculationInfoModel,
     YtFieldData3dReturnModel
 )
+from ..utilities.velocity_power_spectrum import (
+    VelocityPowerSpectrum
+)
 from .data3d_analyzor import Data3dAnalyzor
 from ....models import SimFileModel

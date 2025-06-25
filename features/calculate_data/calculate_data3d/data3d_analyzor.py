@@ -1,3 +1,4 @@
+from typing import Tuple
 from ..utilities.velocity_filtering import (
     VelocityFiltering, 
     VelocityFilteringCalculationInfoModel,
@@ -14,9 +15,13 @@ from ..utilities.turbulence_heating_vazza import (
 from ..utilities.yt_field import (
     YtField,
     YtFieldCalculationInfoModel,
-    YtFieldData3dReturnModel
+    YtFieldData3dReturnModel,
+)
+from ..utilities.velocity_power_spectrum import (
+    VelocityPowerSpectrum
 )
 from ....models import SimFileModel
+from astropy import units as u
 
 class Data3dAnalyzor:
     
@@ -50,6 +55,17 @@ class Data3dAnalyzor:
     ) -> TurbulenceHeatingVazzaData3dReturnModel:
         return TurbulenceHeatingVazza()\
             .setInputs(mode, simFile, calculationInfo).getData3d()
+            
+    
+    def powerSpectrum(
+        self,
+        field: VelocityFilteringField,
+        velocityData3d: VelocityFilteringData3dReturnModel
+    ) -> Tuple[u.Quantity, u.Quantity]:
+        return VelocityPowerSpectrum().getPowerSpectrumByVelocityFilteringData3d(
+            field, velocityData3d
+        )
+        
     
     
     
