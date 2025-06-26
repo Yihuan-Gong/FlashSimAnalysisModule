@@ -64,8 +64,8 @@ class Renderer:
     def __adjustZlimThresh(self, plotInfo: Plot2dInfoModel) -> Plot2dInfoModel:
         zlimThresh = plotInfo.zlimThresh
         if (zlimThresh == None):
-            if (plotInfo.zlimMax > 0 and plotInfo.zlimMin < 0):
-                raise ValueError("You must set zlimThresh for symLog plot")
+            if (plotInfo.zlimMin == None):
+                raise ValueError("You must set zlimThresh for zlimMin for log plot")
             else:
                 plotInfo.zlimThresh = plotInfo.zlimMin
         return plotInfo
